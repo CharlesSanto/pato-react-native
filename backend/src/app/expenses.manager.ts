@@ -7,6 +7,7 @@
 import { obterConexao } from "../infra/database";
 import {
   CreateExpenseModel,
+  ErrorCode,
   ExpenseCategory,
   ExpenseFilterModel,
   ExpenseModel,
@@ -96,7 +97,7 @@ export const obterDespesaPorIdAsync = async (
       .get(id) as Record<string, unknown> | undefined;
 
     if (!linha) {
-      return { sucesso: false, erro: `Despesa com id ${id} não encontrada.` };
+      return { sucesso: false, erro: `Despesa com id ${id} não encontrada.`, codigoErro: ErrorCode.NAO_ENCONTRADO };
     }
 
     return { sucesso: true, dados: linhaParaDespesa(linha) };
@@ -157,7 +158,7 @@ export const atualizarDespesaAsync = async (
       .prepare("SELECT id FROM despesas WHERE id = ?")
       .get(id);
     if (!existe) {
-      return { sucesso: false, erro: `Despesa com id ${id} não encontrada.` };
+      return { sucesso: false, erro: `Despesa com id ${id} não encontrada.`, codigoErro: ErrorCode.NAO_ENCONTRADO };
     }
 
     const campos: string[] = [];
@@ -217,7 +218,7 @@ export const excluirDespesaAsync = async (
       .run(id);
 
     if (resultado.changes === 0) {
-      return { sucesso: false, erro: `Despesa com id ${id} não encontrada.` };
+      return { sucesso: false, erro: `Despesa com id ${id} não encontrada.`, codigoErro: ErrorCode.NAO_ENCONTRADO };
     }
 
     return { sucesso: true, dados: true };

@@ -11,10 +11,31 @@ import {
   atualizarDespesaAsync,
   excluirDespesaAsync,
 } from "../app/expenses.manager";
-import { ExpenseCategory, ExpenseFilterModel } from "../models/expense.model";
+import { ErrorCode, ExpenseCategory, ExpenseFilterModel } from "../models/expense.model";
 
 /** Roteador Express para o recurso de despesas */
 export const despesasRouter = Router();
+
+/**
+ * Retorna o status HTTP adequado com base no código de erro do resultado.
+ * @param {ErrorCode | undefined} codigoErro - Código de erro estruturado
+ * @returns {number} Código de status HTTP correspondente
+ */
+const httpStatusParaErro = (codigoErro: ErrorCode | undefined): number => {
+  if (codigoErro === ErrorCode.NAO_ENCONTRADO) return 404;
+  return 500;
+};
+
+/**
+ * Converte uma string para número, retornando undefined se inválida.
+ * @param {string | undefined} valor - Valor a converter
+ * @returns {number | undefined} Número convertido ou undefined se inválido
+ */
+const parseNumeroOpcional = (valor: unknown): number | undefined => {
+  if (typeof valor !== "string") return undefined;
+  const n = Number(valor);
+  return isNaN(n) ? undefined : n;
+};
 
 /**
  * GET /despesas
@@ -25,19 +46,26 @@ despesasRouter.get("/despesas", async (req: Request, res: Response) => {
   const { dataInicio, dataFim, categoria, valorMinimo, valorMaximo } =
     req.query;
 
-  const filtro: ExpenseFilterModel = {};
+  if (valorMinimo !== undefined && parseNumeroOpcional(valorMinimo) === undefined) {
+    res.status(400).json({ sucesso: false, erro: "Parâmetro valorMinimo inválido." });
+    return;
+  }
+  if (valorMaximo !== undefined && parseNumeroOpcional(valorMaximo) === undefined) {
+    res.status(400).json({ sucesso: false, erro: "Parâmetro valorMaximo inválido." });
+    return;
+  }
 
+  const filtro: ExpenseFilterModel = {};
   if (typeof dataInicio === "string") filtro.dataInicio = dataInicio;
   if (typeof dataFim === "string") filtro.dataFim = dataFim;
-  if (typeof categoria === "string")
-    filtro.categoria = categoria as ExpenseCategory;
+  if (typeof categoria === "string") filtro.categoria = categoria as ExpenseCategory;
   if (typeof valorMinimo === "string") filtro.valorMinimo = Number(valorMinimo);
   if (typeof valorMaximo === "string") filtro.valorMaximo = Number(valorMaximo);
 
   const resultado = await listarDespesasAsync(filtro);
 
   if (!resultado.sucesso) {
-    res.status(500).json(resultado);
+    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
     return;
   }
 
@@ -59,7 +87,7 @@ despesasRouter.get("/despesas/:id", async (req: Request, res: Response) => {
   const resultado = await obterDespesaPorIdAsync(id);
 
   if (!resultado.sucesso) {
-    res.status(404).json(resultado);
+    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
     return;
   }
 
@@ -81,16 +109,22 @@ despesasRouter.post("/despesas", async (req: Request, res: Response) => {
     return;
   }
 
+  const valorNumerico = Number(valor);
+  if (isNaN(valorNumerico)) {
+    res.status(400).json({ sucesso: false, erro: "Campo valor deve ser numérico." });
+    return;
+  }
+
   const resultado = await criarDespesaAsync({
     descricao,
-    valor: Number(valor),
+    valor: valorNumerico,
     data,
     categoria,
     observacoes,
   });
 
   if (!resultado.sucesso) {
-    res.status(500).json(resultado);
+    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
     return;
   }
 
@@ -111,17 +145,25 @@ despesasRouter.put("/despesas/:id", async (req: Request, res: Response) => {
 
   const { descricao, valor, data, categoria, observacoes } = req.body;
 
+  let valorNumerico: number | undefined;
+  if (valor !== undefined) {
+    valorNumerico = Number(valor);
+    if (isNaN(valorNumerico)) {
+      res.status(400).json({ sucesso: false, erro: "Campo valor deve ser numérico." });
+      return;
+    }
+  }
+
   const resultado = await atualizarDespesaAsync(id, {
     descricao,
-    valor: valor !== undefined ? Number(valor) : undefined,
+    valor: valorNumerico,
     data,
     categoria,
     observacoes,
   });
 
   if (!resultado.sucesso) {
-    const status = resultado.erro?.includes("não encontrada") ? 404 : 500;
-    res.status(status).json(resultado);
+    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
     return;
   }
 
@@ -143,10 +185,10 @@ despesasRouter.delete("/despesas/:id", async (req: Request, res: Response) => {
   const resultado = await excluirDespesaAsync(id);
 
   if (!resultado.sucesso) {
-    const status = resultado.erro?.includes("não encontrada") ? 404 : 500;
-    res.status(status).json(resultado);
+    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
     return;
   }
 
   res.status(200).json(resultado);
 });
+

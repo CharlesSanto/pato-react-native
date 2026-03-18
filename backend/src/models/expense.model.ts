@@ -93,6 +93,17 @@ export interface ExpenseFilterModel {
 }
 
 /**
+ * Códigos de erro padronizados para operações do sistema.
+ * Permitem tratamento condicional sem depender de correspondência de strings.
+ */
+export enum ErrorCode {
+  /** Recurso não encontrado no banco de dados */
+  NAO_ENCONTRADO = "NAO_ENCONTRADO",
+  /** Erro interno ou inesperado durante a operação */
+  ERRO_INTERNO = "ERRO_INTERNO",
+}
+
+/**
  * Envelope genérico de resultado para operações do sistema.
  * Encapsula o sucesso ou falha de uma operação juntamente com os dados ou mensagem de erro.
  * @template T Tipo dos dados retornados em caso de sucesso
@@ -102,6 +113,8 @@ export interface Result<T> {
   sucesso: boolean;
   /** Dados retornados em caso de sucesso */
   dados?: T;
-  /** Mensagem de erro em caso de falha */
+  /** Mensagem de erro legível em caso de falha */
   erro?: string;
+  /** Código de erro estruturado para tratamento programático */
+  codigoErro?: ErrorCode;
 }
