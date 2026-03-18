@@ -35,6 +35,17 @@ const AddExpenseTab: React.FC = () => {
   const [salvando, setSalvando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
 
+  const sucessoTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /** Limpa o timer de sucesso ao desmontar o componente */
+  React.useEffect(() => {
+    return () => {
+      if (sucessoTimerRef.current !== null) {
+        clearTimeout(sucessoTimerRef.current);
+      }
+    };
+  }, []);
+
   const todasCategorias = Object.values(ExpenseCategory);
 
   /** Reseta o formulário para o estado inicial após salvar */
@@ -45,7 +56,10 @@ const AddExpenseTab: React.FC = () => {
     setCategoria(ExpenseCategory.OUTROS);
     setObservacoes('');
     setErros([]);
-    setTimeout(() => setSucesso(false), 3000);
+    if (sucessoTimerRef.current !== null) {
+      clearTimeout(sucessoTimerRef.current);
+    }
+    sucessoTimerRef.current = setTimeout(() => setSucesso(false), 3000);
   };
 
   /** Submete o formulário */

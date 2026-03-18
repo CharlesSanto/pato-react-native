@@ -13,20 +13,33 @@ import {
 const API_BASE_URL = 'http://localhost:3000/api';
 
 /**
- * Trata erros de resposta HTTP, lançando exceção com mensagem descritiva.
- * @param response - Resposta da requisição fetch
+ * Formato de resposta encapsulada retornada pelo backend.
+ * @template T Tipo dos dados em caso de sucesso
  */
-async function tratarErroResposta(response: Response): Promise<never> {
-  let mensagem = `Erro HTTP ${response.status}`;
+interface ResultadoAPI<T> {
+  sucesso: boolean;
+  dados?: T;
+  erro?: string;
+}
+
+/**
+ * Trata respostas do backend, desencapsulando os dados ou lançando erro descritivo.
+ * @param response - Resposta da requisição fetch
+ * @returns Dados desencapsulados em caso de sucesso
+ */
+async function processarResposta<T>(response: Response): Promise<T> {
+  let corpo: ResultadoAPI<T>;
   try {
-    const corpo = await response.json();
-    if (corpo.message) {
-      mensagem = corpo.message;
-    }
+    corpo = (await response.json()) as ResultadoAPI<T>;
   } catch {
-    // ignora erro ao ler o corpo
+    throw new Error(`Erro HTTP ${response.status}`);
   }
-  throw new Error(mensagem);
+
+  if (!response.ok || !corpo.sucesso) {
+    throw new Error(corpo.erro ?? `Erro HTTP ${response.status}`);
+  }
+
+  return corpo.dados as T;
 }
 
 /**
@@ -51,12 +64,11 @@ export async function listarDespesas(
 
   const queryString = params.toString();
   const url = queryString
-    ? `${API_BASE_URL}/expenses?${queryString}`
-    : `${API_BASE_URL}/expenses`;
+    ? `${API_BASE_URL}/despesas?${queryString}`
+    : `${API_BASE_URL}/despesas`;
 
   const response = await fetch(url);
-  if (!response.ok) await tratarErroResposta(response);
-  return response.json() as Promise<ExpenseModel[]>;
+  return processarResposta<ExpenseModel[]>(response);
 }
 
 /**
@@ -65,9 +77,8 @@ export async function listarDespesas(
  * @returns Despesa encontrada
  */
 export async function obterDespesaPorId(id: number): Promise<ExpenseModel> {
-  const response = await fetch(`${API_BASE_URL}/expenses/${id}`);
-  if (!response.ok) await tratarErroResposta(response);
-  return response.json() as Promise<ExpenseModel>;
+  const response = await fetch(`${API_BASE_URL}/despesas/${id}`);
+  return processarResposta<ExpenseModel>(response);
 }
 
 /**
@@ -78,13 +89,12 @@ export async function obterDespesaPorId(id: number): Promise<ExpenseModel> {
 export async function criarDespesa(
   despesa: CreateExpenseModel
 ): Promise<ExpenseModel> {
-  const response = await fetch(`${API_BASE_URL}/expenses`, {
+  const response = await fetch(`${API_BASE_URL}/despesas`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(despesa),
   });
-  if (!response.ok) await tratarErroResposta(response);
-  return response.json() as Promise<ExpenseModel>;
+  return processarResposta<ExpenseModel>(response);
 }
 
 /**
@@ -97,13 +107,12 @@ export async function atualizarDespesa(
   id: number,
   dados: Partial<CreateExpenseModel>
 ): Promise<ExpenseModel> {
-  const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/despesas/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dados),
   });
-  if (!response.ok) await tratarErroResposta(response);
-  return response.json() as Promise<ExpenseModel>;
+  return processarResposta<ExpenseModel>(response);
 }
 
 /**
@@ -111,8 +120,10 @@ export async function atualizarDespesa(
  * @param id - Identificador da despesa a excluir
  */
 export async function excluirDespesa(id: number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/despesas/${id}`, {
     method: 'DELETE',
   });
-  if (!response.ok) await tratarErroResposta(response);
+  if (!response.ok) {
+    await processarResposta<void>(response);
+  }
 }
