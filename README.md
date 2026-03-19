@@ -59,7 +59,7 @@ backend/src/
 
 ### Pré-requisitos
 
-- Node.js >= 18
+- Node.js >= 20
 - npm >= 9
 - Expo Go (app no celular) ou emulador Android/iOS
 
@@ -88,6 +88,13 @@ npm install
 npm start
 # Escanear o QR Code com o app Expo Go
 ```
+
+> **Observação sobre o backend em dispositivos físicos**  
+> Para acessar o backend rodando no computador, defina a variável
+> `EXPO_PUBLIC_API_BASE_URL` com o IP da sua máquina na rede local.
+> Exemplo:
+> `EXPO_PUBLIC_API_BASE_URL=http://192.168.0.10:3000/api`.
+> No emulador Android, o endereço padrão `http://10.0.2.2:3000/api` já é utilizado.
 
 ---
 

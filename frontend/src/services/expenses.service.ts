@@ -3,14 +3,21 @@
  * Realiza operações CRUD de despesas via API REST.
  */
 
+import { Platform } from 'react-native';
 import {
   CreateExpenseModel,
   ExpenseFilterModel,
   ExpenseModel,
 } from '../models/expense.model';
 
-/** URL base da API do backend */
-const API_BASE_URL = 'http://localhost:3000/api';
+/** URL base padrão para Android emulator */
+const ANDROID_API_URL = 'http://10.0.2.2:3000/api';
+/** URL base padrão para iOS simulador e web */
+const DEFAULT_API_URL = 'http://localhost:3000/api';
+/** URL base da API do backend (configurável via EXPO_PUBLIC_API_BASE_URL) */
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ??
+  (Platform.OS === 'android' ? ANDROID_API_URL : DEFAULT_API_URL);
 
 /**
  * Formato de resposta encapsulada retornada pelo backend.
@@ -98,7 +105,7 @@ export async function criarDespesa(
 }
 
 /**
- * Atualiza parcialmente uma despesa existente.
+ * Atualiza uma despesa existente.
  * @param id - Identificador da despesa a atualizar
  * @param dados - Campos a serem atualizados
  * @returns Despesa atualizada
@@ -108,7 +115,7 @@ export async function atualizarDespesa(
   dados: Partial<CreateExpenseModel>
 ): Promise<ExpenseModel> {
   const response = await fetch(`${API_BASE_URL}/despesas/${id}`, {
-    method: 'PATCH',
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dados),
   });

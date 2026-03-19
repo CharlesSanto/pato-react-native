@@ -3,7 +3,7 @@
  * Painel de filtros para refinamento da lista de despesas.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
   Text,
@@ -37,17 +37,10 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
 }) => {
   const [filtroLocal, setFiltroLocal] = useState<ExpenseFilterModel>(filtro);
 
-  /** Setter que também notifica o componente pai sobre a mudança */
-  const setFiltroComCallback: React.Dispatch<
-    React.SetStateAction<ExpenseFilterModel>
-  > = (action) => {
-    setFiltroLocal((prev) => {
-      const novoFiltro =
-        typeof action === 'function' ? action(prev) : action;
-      onFiltroChange(novoFiltro);
-      return novoFiltro;
-    });
-  };
+  /** Sincroniza o estado local caso o filtro externo seja atualizado */
+  useEffect(() => {
+    setFiltroLocal(filtro);
+  }, [filtro]);
 
   const todasCategorias = Object.values(ExpenseCategory);
 
@@ -65,12 +58,12 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
                 styles.categoryOptionSelected,
             ]}
             onPress={() =>
-              expenseFilterViewModel.handleCategoriaChange(
-                undefined,
-                setFiltroComCallback
-              )
-            }
-          >
+                expenseFilterViewModel.handleCategoriaChange(
+                  undefined,
+                  setFiltroLocal
+                )
+              }
+            >
             <Text
               style={[
                 styles.categoryOptionText,
@@ -92,7 +85,7 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
               onPress={() =>
                 expenseFilterViewModel.handleCategoriaChange(
                   cat,
-                  setFiltroComCallback
+                  setFiltroLocal
                 )
               }
             >
@@ -122,7 +115,7 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
             onChangeText={(texto) =>
               expenseFilterViewModel.handleDataInicioChange(
                 texto,
-                setFiltroComCallback
+                setFiltroLocal
               )
             }
           />
@@ -134,7 +127,7 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
             onChangeText={(texto) =>
               expenseFilterViewModel.handleDataFimChange(
                 texto,
-                setFiltroComCallback
+                setFiltroLocal
               )
             }
           />
@@ -158,7 +151,7 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
             onChangeText={(texto) =>
               expenseFilterViewModel.handleValorMinimoChange(
                 texto,
-                setFiltroComCallback
+                setFiltroLocal
               )
             }
           />
@@ -175,19 +168,28 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
             onChangeText={(texto) =>
               expenseFilterViewModel.handleValorMaximoChange(
                 texto,
-                setFiltroComCallback
+                setFiltroLocal
               )
             }
           />
         </View>
       </View>
 
+      {/* Botão aplicar filtros */}
+      <TouchableOpacity
+        style={styles.applyButton}
+        onPress={() => onFiltroChange(filtroLocal)}
+      >
+        <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+      </TouchableOpacity>
+
       {/* Botão limpar filtros */}
       <TouchableOpacity
         style={styles.clearButton}
-        onPress={() =>
-          expenseFilterViewModel.handleLimparFiltros(setFiltroComCallback)
-        }
+        onPress={() => {
+          expenseFilterViewModel.handleLimparFiltros(setFiltroLocal);
+          onFiltroChange({});
+        }}
       >
         <Text style={styles.clearButtonText}>Limpar Filtros</Text>
       </TouchableOpacity>

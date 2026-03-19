@@ -105,7 +105,10 @@ const AddExpenseTab: React.FC = () => {
       <View style={styles.formGroup}>
         <Text style={styles.label}>Descrição *</Text>
         <TextInput
-          style={[styles.input, erros.length > 0 && !descricao && styles.inputError]}
+          style={[
+            styles.input,
+            erros.length > 0 && !descricao.trim() && styles.inputError,
+          ]}
           placeholder="Ex.: Almoço no restaurante"
           placeholderTextColor="#95A5A6"
           value={descricao}

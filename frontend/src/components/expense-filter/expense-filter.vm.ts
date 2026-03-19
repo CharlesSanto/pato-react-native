@@ -3,10 +3,11 @@
  * Contém a lógica de manipulação dos filtros de despesas.
  */
 
+import { Dispatch, SetStateAction } from 'react';
 import { ExpenseCategory, ExpenseFilterModel } from '../../models/expense.model';
 
 /** Tipo do setter do estado de filtro */
-type SetFiltroFn = React.Dispatch<React.SetStateAction<ExpenseFilterModel>>;
+type SetFiltroFn = Dispatch<SetStateAction<ExpenseFilterModel>>;
 
 /**
  * ViewModel responsável por gerenciar as interações do componente de filtro.

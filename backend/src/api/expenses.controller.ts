@@ -38,6 +38,18 @@ const parseNumeroOpcional = (valor: unknown): number | undefined => {
 };
 
 /**
+ * Verifica se uma categoria é válida conforme o enum ExpenseCategory.
+ * @param {unknown} categoria - Valor a validar
+ * @returns {boolean} true se a categoria for válida
+ */
+const categoriaValida = (categoria: unknown): categoria is ExpenseCategory => {
+  return (
+    typeof categoria === "string" &&
+    Object.values(ExpenseCategory).includes(categoria as ExpenseCategory)
+  );
+};
+
+/**
  * GET /despesas
  * Lista todas as despesas, com suporte a filtros via query string.
  * Parâmetros opcionais: dataInicio, dataFim, categoria, valorMinimo, valorMaximo
@@ -52,6 +64,10 @@ despesasRouter.get("/despesas", async (req: Request, res: Response) => {
   }
   if (valorMaximo !== undefined && parseNumeroOpcional(valorMaximo) === undefined) {
     res.status(400).json({ sucesso: false, erro: "Parâmetro valorMaximo inválido." });
+    return;
+  }
+  if (categoria !== undefined && !categoriaValida(categoria)) {
+    res.status(400).json({ sucesso: false, erro: "Parâmetro categoria inválido." });
     return;
   }
 
@@ -114,6 +130,10 @@ despesasRouter.post("/despesas", async (req: Request, res: Response) => {
     res.status(400).json({ sucesso: false, erro: "Campo valor deve ser numérico." });
     return;
   }
+  if (!categoriaValida(categoria)) {
+    res.status(400).json({ sucesso: false, erro: "Campo categoria inválido." });
+    return;
+  }
 
   const resultado = await criarDespesaAsync({
     descricao,
@@ -133,7 +153,7 @@ despesasRouter.post("/despesas", async (req: Request, res: Response) => {
 
 /**
  * PUT /despesas/:id
- * Atualiza parcialmente uma despesa existente pelo seu identificador.
+ * Atualiza uma despesa existente pelo seu identificador.
  */
 despesasRouter.put("/despesas/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
@@ -152,6 +172,10 @@ despesasRouter.put("/despesas/:id", async (req: Request, res: Response) => {
       res.status(400).json({ sucesso: false, erro: "Campo valor deve ser numérico." });
       return;
     }
+  }
+  if (categoria !== undefined && !categoriaValida(categoria)) {
+    res.status(400).json({ sucesso: false, erro: "Campo categoria inválido." });
+    return;
   }
 
   const resultado = await atualizarDespesaAsync(id, {
@@ -191,4 +215,3 @@ despesasRouter.delete("/despesas/:id", async (req: Request, res: Response) => {
 
   res.status(200).json(resultado);
 });
-

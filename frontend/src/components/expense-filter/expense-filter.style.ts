@@ -57,6 +57,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 4,
   },
+  /** Botão para aplicar filtros */
+  applyButton: {
+    backgroundColor: '#2980B9',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  /** Texto do botão de aplicar filtros */
+  applyButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
   /** Texto do botão de limpar filtros */
   clearButtonText: {
     color: '#FFFFFF',
