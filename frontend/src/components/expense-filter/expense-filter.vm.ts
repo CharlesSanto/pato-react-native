@@ -84,9 +84,12 @@ export class ExpenseFilterViewModel {
   /**
    * Limpa todos os filtros aplicados, retornando ao estado inicial.
    * @param setFiltro - Setter do estado de filtro
+   * @returns Filtro limpo aplicado
    */
-  public handleLimparFiltros = (setFiltro: SetFiltroFn): void => {
-    setFiltro({});
+  public handleLimparFiltros = (setFiltro: SetFiltroFn): ExpenseFilterModel => {
+    const filtroLimpo: ExpenseFilterModel = {};
+    setFiltro(filtroLimpo);
+    return filtroLimpo;
   };
 }
 

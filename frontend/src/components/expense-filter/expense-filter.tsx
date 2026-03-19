@@ -178,6 +178,8 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
       {/* Botão aplicar filtros */}
       <TouchableOpacity
         style={styles.applyButton}
+        accessibilityLabel="Aplicar filtros de despesas"
+        accessibilityRole="button"
         onPress={() => onFiltroChange(filtroLocal)}
       >
         <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
@@ -186,9 +188,12 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
       {/* Botão limpar filtros */}
       <TouchableOpacity
         style={styles.clearButton}
+        accessibilityLabel="Limpar todos os filtros de despesas"
+        accessibilityRole="button"
         onPress={() => {
-          expenseFilterViewModel.handleLimparFiltros(setFiltroLocal);
-          onFiltroChange({});
+          const filtroLimpo =
+            expenseFilterViewModel.handleLimparFiltros(setFiltroLocal);
+          onFiltroChange(filtroLimpo);
         }}
       >
         <Text style={styles.clearButtonText}>Limpar Filtros</Text>

@@ -42,7 +42,7 @@ const parseNumeroOpcional = (valor: unknown): number | undefined => {
  * @param {unknown} categoria - Valor a validar
  * @returns {boolean} true se a categoria for válida
  */
-const categoriaValida = (categoria: unknown): categoria is ExpenseCategory => {
+const isCategoriaValida = (categoria: unknown): categoria is ExpenseCategory => {
   return (
     typeof categoria === "string" &&
     Object.values(ExpenseCategory).includes(categoria as ExpenseCategory)
@@ -66,7 +66,7 @@ despesasRouter.get("/despesas", async (req: Request, res: Response) => {
     res.status(400).json({ sucesso: false, erro: "Parâmetro valorMaximo inválido." });
     return;
   }
-  if (categoria !== undefined && !categoriaValida(categoria)) {
+  if (categoria !== undefined && !isCategoriaValida(categoria)) {
     res.status(400).json({ sucesso: false, erro: "Parâmetro categoria inválido." });
     return;
   }
@@ -130,7 +130,7 @@ despesasRouter.post("/despesas", async (req: Request, res: Response) => {
     res.status(400).json({ sucesso: false, erro: "Campo valor deve ser numérico." });
     return;
   }
-  if (!categoriaValida(categoria)) {
+  if (!isCategoriaValida(categoria)) {
     res.status(400).json({ sucesso: false, erro: "Campo categoria inválido." });
     return;
   }
@@ -173,7 +173,7 @@ despesasRouter.put("/despesas/:id", async (req: Request, res: Response) => {
       return;
     }
   }
-  if (categoria !== undefined && !categoriaValida(categoria)) {
+  if (categoria !== undefined && !isCategoriaValida(categoria)) {
     res.status(400).json({ sucesso: false, erro: "Campo categoria inválido." });
     return;
   }

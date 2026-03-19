@@ -59,7 +59,7 @@ backend/src/
 
 ### Pré-requisitos
 
-- Node.js >= 20
+- Node.js >= 20 (requisito do `better-sqlite3@12.x`)
 - npm >= 9
 - Expo Go (app no celular) ou emulador Android/iOS
 
@@ -157,6 +157,8 @@ Base URL: `http://localhost:3000/api`
 | `npm start`    | Inicia o servidor (requer build)   |
 | `npm run dev`  | Inicia em modo desenvolvimento     |
 
+> **Linting**: scripts de lint não estão configurados no back-end.
+
 ### Front-End
 
 | Script              | Descrição                         |
@@ -165,6 +167,8 @@ Base URL: `http://localhost:3000/api`
 | `npm run android`   | Inicia no emulador Android        |
 | `npm run ios`       | Inicia no simulador iOS           |
 | `npm run type-check`| Verifica tipos TypeScript         |
+
+> **Linting**: scripts de lint não estão configurados no front-end.
 
 ---
 
