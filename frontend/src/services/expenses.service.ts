@@ -3,6 +3,7 @@
  * Realiza operações CRUD de despesas via API REST.
  */
 
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import {
   CreateExpenseModel,
@@ -10,7 +11,7 @@ import {
   ExpenseModel,
 } from '../models/expense.model';
 
-const IP_REDE_LOCAL = '192.168.1.6';
+const hostUri = Constants.expoConfig?.hostUri?.split(':').shift();
 
 /** URL base padrão para Android emulator */
 const ANDROID_API_URL = 'http://10.0.2.2:3000/api';
@@ -19,9 +20,11 @@ const DEFAULT_API_URL = 'http://localhost:3000/api';
 /** URL base da API do backend (configurável via EXPO_PUBLIC_API_BASE_URL) */
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
-  (Platform.OS === 'web' 
-    ? DEFAULT_API_URL 
-    : `http://${IP_REDE_LOCAL}:3000/api`);
+  (Platform.OS === 'web'
+    ? 'http://localhost:3000/api'
+    : hostUri 
+      ? `http://${hostUri}:3000/api` 
+      : 'http://localhost:3000/api');
 
 /**
  * Formato de resposta encapsulada retornada pelo backend.

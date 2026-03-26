@@ -54,7 +54,7 @@ const isCategoriaValida = (categoria: unknown): categoria is ExpenseCategory => 
  * Lista todas as despesas, com suporte a filtros via query string.
  * Parâmetros opcionais: dataInicio, dataFim, categoria, valorMinimo, valorMaximo
  */
-despesasRouter.get("/despesas", async (req: Request, res: Response) => {
+despesasRouter.get("/", async (req: Request, res: Response) => {
   const { dataInicio, dataFim, categoria, valorMinimo, valorMaximo } =
     req.query;
 
@@ -92,7 +92,7 @@ despesasRouter.get("/despesas", async (req: Request, res: Response) => {
  * GET /despesas/:id
  * Retorna uma despesa específica pelo seu identificador.
  */
-despesasRouter.get("/despesas/:id", async (req: Request, res: Response) => {
+despesasRouter.get("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
   if (isNaN(id)) {
@@ -114,7 +114,7 @@ despesasRouter.get("/despesas/:id", async (req: Request, res: Response) => {
  * POST /despesas
  * Cria uma nova despesa com os dados enviados no corpo da requisição.
  */
-despesasRouter.post("/despesas", async (req: Request, res: Response) => {
+despesasRouter.post("/", async (req: Request, res: Response) => {
   const { descricao, valor, data, categoria, observacoes } = req.body;
 
   if (!descricao || valor === undefined || !data || !categoria) {
@@ -155,7 +155,7 @@ despesasRouter.post("/despesas", async (req: Request, res: Response) => {
  * PUT /despesas/:id
  * Atualiza uma despesa existente pelo seu identificador.
  */
-despesasRouter.put("/despesas/:id", async (req: Request, res: Response) => {
+despesasRouter.put("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
   if (isNaN(id)) {
@@ -198,7 +198,7 @@ despesasRouter.put("/despesas/:id", async (req: Request, res: Response) => {
  * DELETE /despesas/:id
  * Remove uma despesa pelo seu identificador.
  */
-despesasRouter.delete("/despesas/:id", async (req: Request, res: Response) => {
+despesasRouter.delete("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
   if (isNaN(id)) {

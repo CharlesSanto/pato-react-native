@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 /** Registra todas as rotas de despesas sob o prefixo /api */
-app.use("/api", despesasRouter);
+app.use("/api/despesas", despesasRouter);
 
 /**
  * Inicializa o banco de dados e inicia o servidor HTTP.
