@@ -10,6 +10,8 @@ import {
   ExpenseModel,
 } from '../models/expense.model';
 
+const IP_REDE_LOCAL = '192.168.1.6';
+
 /** URL base padrão para Android emulator */
 const ANDROID_API_URL = 'http://10.0.2.2:3000/api';
 /** URL base padrão para iOS simulador e web */
@@ -17,7 +19,9 @@ const DEFAULT_API_URL = 'http://localhost:3000/api';
 /** URL base da API do backend (configurável via EXPO_PUBLIC_API_BASE_URL) */
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
-  (Platform.OS === 'android' ? ANDROID_API_URL : DEFAULT_API_URL);
+  (Platform.OS === 'web' 
+    ? DEFAULT_API_URL 
+    : `http://${IP_REDE_LOCAL}:3000/api`);
 
 /**
  * Formato de resposta encapsulada retornada pelo backend.

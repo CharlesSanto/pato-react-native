@@ -26,7 +26,7 @@ app.use("/api", despesasRouter);
  */
 inicializarBancoDados();
 
-app.listen(PORTA, () => {
+app.listen(PORTA, "0.0.0.0", () => {
   console.log(`Servidor Pato rodando na porta ${PORTA}`);
 });
 
