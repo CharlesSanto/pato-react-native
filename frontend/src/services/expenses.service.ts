@@ -21,10 +21,10 @@ const DEFAULT_API_URL = 'http://localhost:3000/api';
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
   (Platform.OS === 'web'
-    ? 'http://localhost:3000/api'
+    ? DEFAULT_API_URL
     : hostUri 
       ? `http://${hostUri}:3000/api` 
-      : 'http://localhost:3000/api');
+      : DEFAULT_API_URL);
 
 /**
  * Formato de resposta encapsulada retornada pelo backend.
