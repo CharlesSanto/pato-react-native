@@ -37,9 +37,30 @@ const ExpenseFilter: React.FC<ExpenseFilterProps> = ({
 }) => {
   const [filtroLocal, setFiltroLocal] = useState<ExpenseFilterModel>(filtro);
 
+  /**
+  * Aplica debounce na notificação ao componente pai para evitar
+  * várias chamadas consecutivas enquanto o usuário digita/clica.
+  */
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      onFiltroChange(filtroLocal);
+    }, 400);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [filtroLocal, onFiltroChange]);
+
+  const setFiltroComCallback: React.Dispatch<
+      React.SetStateAction<ExpenseFilterModel>
+    > = (action) => {
+      setFiltroLocal((prev) =>
+        typeof action === 'function' ? action(prev) : action
+      );
+    };
+
   /** Sincroniza o estado local caso o filtro externo seja atualizado */
   useEffect(() => {
-    setFiltroLocal(filtro);
+    setFiltroComCallback(filtro);
   }, [filtro]);
 
   const todasCategorias = Object.values(ExpenseCategory);
