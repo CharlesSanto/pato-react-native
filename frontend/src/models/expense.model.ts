@@ -1,82 +1,47 @@
-/**
- * Modelos de dados para despesas do aplicativo Pato.
- * Define as estruturas utilizadas em toda a aplicação.
- */
-
-/**
- * Categorias disponíveis para classificação de despesas.
- */
+// change the identifier to english
 export enum ExpenseCategory {
-  ALIMENTACAO = 'ALIMENTACAO',
-  TRANSPORTE = 'TRANSPORTE',
-  SAUDE = 'SAUDE',
-  EDUCACAO = 'EDUCACAO',
-  LAZER = 'LAZER',
-  MORADIA = 'MORADIA',
-  VESTUARIO = 'VESTUARIO',
-  OUTROS = 'OUTROS',
+  FOOD = "ALIMENTACAO",
+  TRANSPORT = "TRANSPORTE",
+  HEALTH = "SAUDE",
+  EDUCATION = "EDUCACAO",
+  LEISURE = "LAZER",
+  HOUSING = "MORADIA",
+  CLOTHING = "VESTUARIO",
+  OTHERS = "OUTROS",
 }
 
-/**
- * Mapeamento das categorias para rótulos em português.
- */
 export const CATEGORY_LABELS: Record<ExpenseCategory, string> = {
-  [ExpenseCategory.ALIMENTACAO]: 'Alimentação',
-  [ExpenseCategory.TRANSPORTE]: 'Transporte',
-  [ExpenseCategory.SAUDE]: 'Saúde',
-  [ExpenseCategory.EDUCACAO]: 'Educação',
-  [ExpenseCategory.LAZER]: 'Lazer',
-  [ExpenseCategory.MORADIA]: 'Moradia',
-  [ExpenseCategory.VESTUARIO]: 'Vestuário',
-  [ExpenseCategory.OUTROS]: 'Outros',
+  [ExpenseCategory.FOOD]: "Alimentação",
+  [ExpenseCategory.TRANSPORT]: "Transporte",
+  [ExpenseCategory.HEALTH]: "Saúde",
+  [ExpenseCategory.EDUCATION]: "Educação",
+  [ExpenseCategory.LEISURE]: "Lazer",
+  [ExpenseCategory.HOUSING]: "Moradia",
+  [ExpenseCategory.CLOTHING]: "Vestuário",
+  [ExpenseCategory.OTHERS]: "Outros",
 };
 
-/**
- * Modelo completo de uma despesa, incluindo identificador único.
- */
 export interface ExpenseModel {
-  /** Identificador único da despesa */
   id: number;
-  /** Descrição da despesa */
-  descricao: string;
-  /** Valor monetário da despesa */
-  valor: number;
-  /** Data da despesa no formato YYYY-MM-DD */
-  data: string;
-  /** Categoria da despesa */
-  categoria: ExpenseCategory;
-  /** Observações adicionais (opcional) */
-  observacoes?: string;
+  description: string;
+  value: number;
+  date: string;
+  category: ExpenseCategory;
+  observations?: string;
 }
 
-/**
- * Modelo para criação de uma nova despesa (sem id).
- */
 export interface CreateExpenseModel {
-  /** Descrição da despesa */
-  descricao: string;
-  /** Valor monetário da despesa */
-  valor: number;
-  /** Data da despesa no formato YYYY-MM-DD */
-  data: string;
-  /** Categoria da despesa */
-  categoria: ExpenseCategory;
-  /** Observações adicionais (opcional) */
-  observacoes?: string;
+  description: string;
+  value: number;
+  date: string;
+  category: ExpenseCategory;
+  observations?: string;
 }
 
-/**
- * Modelo de filtros para listagem de despesas.
- */
 export interface ExpenseFilterModel {
-  /** Data inicial do intervalo de busca (formato YYYY-MM-DD) */
-  dataInicio?: string;
-  /** Data final do intervalo de busca (formato YYYY-MM-DD) */
-  dataFim?: string;
-  /** Categoria para filtrar */
-  categoria?: ExpenseCategory;
-  /** Valor mínimo para filtrar */
-  valorMinimo?: number;
-  /** Valor máximo para filtrar */
-  valorMaximo?: number;
+  startDate?: string;
+  endDate?: string;
+  category?: ExpenseCategory;
+  minValue?: number;
+  maxValue?: number;
 }

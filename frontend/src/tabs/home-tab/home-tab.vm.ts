@@ -26,9 +26,9 @@ export class HomeTabViewModel {
     try {
       const despesas = await listarDespesas(filter);
       setExpenses(despesas);
-    } catch (erro) {
+    } catch (error) {
       const mensagem =
-        erro instanceof Error ? erro.message : "Erro ao carregar despesas.";
+        error instanceof Error ? error.message : "Erro ao carregar despesas.";
       setError(mensagem);
     } finally {
       setLoading(false);
@@ -58,9 +58,9 @@ export class HomeTabViewModel {
         setError,
         currentFilter,
       );
-    } catch (erro) {
+    } catch (error) {
       const mensagem =
-        erro instanceof Error ? erro.message : "Erro ao excluir despesa.";
+        error instanceof Error ? error.message : "Erro ao excluir despesa.";
       setError(mensagem);
     }
   };
@@ -103,7 +103,7 @@ export class HomeTabViewModel {
    * @returns Soma total dos valores
    */
   public sumExpenses = (expenses: ExpenseModel[]): number => {
-    return expenses.reduce((sum, e) => sum + e.valor, 0);
+    return expenses.reduce((sum, e) => sum + e.value, 0);
   };
 
   /**
