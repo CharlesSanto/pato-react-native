@@ -81,7 +81,7 @@ const HomeTab: React.FC = () => {
       </View>
 
       {visibleFilters && (
-        <ExpenseFilter filtro={filter} onFiltroChange={handleFilterChange} />
+        <ExpenseFilter filter={filter} onFilterChange={handleFilterChange} />
       )}
 
       {error !== null && <Text style={styles.errorText}>{error}</Text>}
