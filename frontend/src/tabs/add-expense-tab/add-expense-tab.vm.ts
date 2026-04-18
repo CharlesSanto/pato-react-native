@@ -1,46 +1,44 @@
 import { Dispatch, SetStateAction } from "react";
 import { ExpenseCategory, ExpenseModel } from "../../models/expense.model";
-import { criarDespesa } from "../../services/expenses.service";
+import { createExpense } from "../../services/expenses.service";
+import { mockExpenses } from "src/mock/ExpenseMock";
 
 type SetState<T> = Dispatch<SetStateAction<T>>;
 export class AddExpenseTabViewModel {
   /**
    * Atualiza o campo de descrição no estado do formulário.
-   * @param texto - Novo valor digitado
+   * @param text - Novo valor digitado
    * @param setDescription - Setter do estado de descrição
    */
   public handleDescriptionChange = (
-    texto: string,
+    text: string,
     setDescription: SetState<string>,
   ): void => {
-    setDescription(texto);
+    setDescription(text);
   };
 
   /**
    * Atualiza o campo de valor no estado do formulário.
    * Aceita apenas caracteres numéricos e separadores decimais.
-   * @param texto - Novo valor digitado
+   * @param text - Novo valor digitado
    * @param setValue - Setter do estado de valor
    */
   public handleValueChange = (
-    texto: string,
+    text: string,
     setValue: SetState<string>,
   ): void => {
     // Permite apenas dígitos, vírgula e ponto
-    const sanitizado = texto.replace(/[^0-9.,]/g, "");
+    const sanitizado = text.replace(/[^0-9.,]/g, "");
     setValue(sanitizado);
   };
 
   /**
    * Atualiza o campo de data no estado do formulário.
-   * @param texto - Nova data digitada
+   * @param text - Nova data digitada
    * @param setDate - Setter do estado de data
    */
-  public handleDateChange = (
-    texto: string,
-    setDate: SetState<string>,
-  ): void => {
-    setDate(texto);
+  public handleDateChange = (text: string, setDate: SetState<string>): void => {
+    setDate(text);
   };
 
   /**
@@ -74,7 +72,7 @@ export class AddExpenseTabViewModel {
    * @param date - Data como string
    * @returns Array de mensagens de erro (vazio se válido)
    */
-  public validarFormulario = (
+  public validateForm = (
     description: string,
     value: string,
     date: string,
@@ -107,14 +105,14 @@ export class AddExpenseTabViewModel {
    * @param description - Descrição da despesa
    * @param value - Valor como string
    * @param data - Data no formato YYYY-MM-DD
-   * @param categoria - Categoria selecionada
-   * @param observacoes - Observações opcionais
-   * @param setSalvando - Setter do estado de loading
-   * @param setErros - Setter da lista de erros
-   * @param setSucesso - Setter do estado de sucesso
-   * @param onSucesso - Callback opcional chamado após salvar com sucesso
+   * @param category - Categoria selecionada
+   * @param observations - Observações opcionais
+   * @param setSaving - Setter do estado de loading
+   * @param setErrors - Setter da lista de erros
+   * @param setSuccess - Setter do estado de sucesso
+   * @param onSuccess - Callback opcional chamado após salvar com sucesso
    */
-  public handleSalvarDespesaAsync = async (
+  public handleSaveExpenseAsync = async (
     description: string,
     value: string,
     date: string,
@@ -125,7 +123,7 @@ export class AddExpenseTabViewModel {
     setSuccess: SetState<boolean>,
     onSuccess?: (despesa: ExpenseModel) => void,
   ): Promise<void> => {
-    const erros = this.validarFormulario(description, value, date);
+    const erros = this.validateForm(description, value, date);
     if (erros.length > 0) {
       setErrors(erros);
       return;
@@ -136,7 +134,8 @@ export class AddExpenseTabViewModel {
 
     try {
       const valueNum = parseFloat(value.replace(",", "."));
-      const despesaCriada = await criarDespesa({
+
+      const createdExpense = await createExpense({
         description: description.trim(),
         value: valueNum,
         date,
@@ -144,8 +143,24 @@ export class AddExpenseTabViewModel {
         observations: observations.trim() || undefined,
       });
 
+      // MOCK
+      const newExpense: ExpenseModel = {
+        id: mockExpenses.length
+          ? Math.max(...mockExpenses.map((e) => e.id)) + 1
+          : 1,
+        description: description.trim(),
+        value: valueNum,
+        date,
+        category,
+        observations: observations.trim() || undefined,
+      };
+
+      mockExpenses.push(newExpense);
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       setSuccess(true);
-      onSuccess?.(despesaCriada);
+      onSuccess?.(newExpense);
     } catch (error) {
       const mensagem =
         error instanceof Error ? error.message : "Erro ao salvar despesa.";

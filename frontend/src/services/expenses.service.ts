@@ -30,7 +30,7 @@ const API_BASE_URL =
  * Formato de resposta encapsulada retornada pelo backend.
  * @template T Tipo dos dados em caso de sucesso
  */
-interface ResultadoAPI<T> {
+interface Result<T> {
   success: boolean;
   data?: T;
   error?: string;
@@ -42,9 +42,9 @@ interface ResultadoAPI<T> {
  * @returns Dados desencapsulados em caso de sucesso
  */
 async function processResponse<T>(response: Response): Promise<T> {
-  let body: ResultadoAPI<T>;
+  let body: Result<T>;
   try {
-    body = (await response.json()) as ResultadoAPI<T>;
+    body = (await response.json()) as Result<T>;
   } catch {
     throw new Error(`Erro HTTP ${response.status}`);
   }
@@ -90,7 +90,7 @@ export async function listExpenses(
  * @param id - Identificador único da despesa
  * @returns Despesa encontrada
  */
-export async function obterDespesaPorId(id: number): Promise<ExpenseModel> {
+export async function getExpenseById(id: number): Promise<ExpenseModel> {
   const response = await fetch(`${API_BASE_URL}/despesas/${id}`);
   return processResponse<ExpenseModel>(response);
 }
@@ -100,7 +100,7 @@ export async function obterDespesaPorId(id: number): Promise<ExpenseModel> {
  * @param expense - Dados da despesa a ser criada
  * @returns Despesa criada com o id gerado
  */
-export async function criarDespesa(
+export async function createExpense(
   expense: CreateExpenseModel,
 ): Promise<ExpenseModel> {
   const response = await fetch(`${API_BASE_URL}/expenses`, {
@@ -117,7 +117,7 @@ export async function criarDespesa(
  * @param data - Campos a serem atualizados
  * @returns Despesa atualizada
  */
-export async function atualizarDespesa(
+export async function updateExpense(
   id: number,
   data: Partial<CreateExpenseModel>,
 ): Promise<ExpenseModel> {

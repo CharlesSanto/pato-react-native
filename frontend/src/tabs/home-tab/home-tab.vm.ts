@@ -1,6 +1,8 @@
 import { Dispatch, SetStateAction } from "react";
 import { ExpenseFilterModel, ExpenseModel } from "../../models/expense.model";
-import { deleteExpenses, listExpenses } from "../../services/expenses.service";
+
+// import { deleteExpenses, listExpenses } from "../../services/expenses.service";
+import { mockExpenses } from "src/mock/ExpenseMock";
 
 type SetState<T> = Dispatch<SetStateAction<T>>;
 
@@ -20,8 +22,40 @@ export class HomeTabViewModel {
   ): Promise<void> => {
     setLoading(true);
     setError(null);
+
     try {
-      const despesas = await listExpenses(filter);
+      // const despesas = await listExpenses(filter);
+
+      let despesas = [...mockExpenses];
+
+      if (filter) {
+        if (filter.startDate) {
+          despesas = despesas.filter(
+            (e) => new Date(e.date) >= new Date(filter.startDate!),
+          );
+        }
+
+        if (filter.endDate) {
+          despesas = despesas.filter(
+            (e) => new Date(e.date) <= new Date(filter.endDate!),
+          );
+        }
+
+        if (filter.category) {
+          despesas = despesas.filter((e) => e.category === filter.category);
+        }
+
+        if (filter.minValue !== undefined) {
+          despesas = despesas.filter((e) => e.value >= filter.minValue!);
+        }
+
+        if (filter.maxValue !== undefined) {
+          despesas = despesas.filter((e) => e.value <= filter.maxValue!);
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       setExpenses(despesas);
     } catch (error) {
       const mensagem =
@@ -34,6 +68,7 @@ export class HomeTabViewModel {
 
   /**
    * Exclui uma despesa e recarrega a lista atualizada.
+   * (Modo mock: remove diretamente do array local)
    * @param id - Identificador da despesa a excluir
    * @param setExpenses - Setter da lista de despesas
    * @param setLoading - Setter do estado de carregamento
@@ -48,7 +83,13 @@ export class HomeTabViewModel {
     currentFilter?: ExpenseFilterModel,
   ): Promise<void> => {
     try {
-      await deleteExpenses(id);
+      // await deleteExpenses(id);
+
+      const index = mockExpenses.findIndex((e) => e.id === id);
+      if (index !== -1) {
+        mockExpenses.splice(index, 1);
+      }
+
       await this.handleLoadExpensesAsync(
         setExpenses,
         setLoading,
@@ -64,7 +105,7 @@ export class HomeTabViewModel {
 
   /**
    * Alterna a visibilidade do painel de filtros.
-   * @param setFiltrosVisiveis - Setter do estado de visibilidade dos filtros
+   * @param setVisibleFilters - Setter do estado de visibilidade dos filtros
    */
   public handleToggleFilters = (setVisibleFilters: SetState<boolean>): void => {
     setVisibleFilters((prev) => !prev);

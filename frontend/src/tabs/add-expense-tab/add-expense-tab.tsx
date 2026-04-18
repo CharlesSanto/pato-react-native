@@ -51,7 +51,7 @@ const AddExpenseTab: React.FC = () => {
   };
 
   const handleSubmit = (): void => {
-    addExpenseTabViewModel.handleSalvarDespesaAsync(
+    addExpenseTabViewModel.handleSaveExpenseAsync(
       description,
       value,
       date,
