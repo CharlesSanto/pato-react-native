@@ -1,9 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { ExpenseFilterModel, ExpenseModel } from "../../models/expense.model";
-import {
-  excluirDespesa,
-  listarDespesas,
-} from "../../services/expenses.service";
+import { deleteExpenses, listExpenses } from "../../services/expenses.service";
 
 type SetState<T> = Dispatch<SetStateAction<T>>;
 
@@ -24,7 +21,7 @@ export class HomeTabViewModel {
     setLoading(true);
     setError(null);
     try {
-      const despesas = await listarDespesas(filter);
+      const despesas = await listExpenses(filter);
       setExpenses(despesas);
     } catch (error) {
       const mensagem =
@@ -51,7 +48,7 @@ export class HomeTabViewModel {
     currentFilter?: ExpenseFilterModel,
   ): Promise<void> => {
     try {
-      await excluirDespesa(id);
+      await deleteExpenses(id);
       await this.handleLoadExpensesAsync(
         setExpenses,
         setLoading,

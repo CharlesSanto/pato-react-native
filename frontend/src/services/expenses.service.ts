@@ -61,7 +61,7 @@ async function processResponse<T>(response: Response): Promise<T> {
  * @param filter - Parâmetros de filtro opcionais
  * @returns Lista de despesas
  */
-export async function listarDespesas(
+export async function listExpenses(
   filter?: ExpenseFilterModel,
 ): Promise<ExpenseModel[]> {
   const params = new URLSearchParams();
@@ -133,7 +133,7 @@ export async function atualizarDespesa(
  * Exclui uma despesa pelo seu identificador.
  * @param id - Identificador da despesa a excluir
  */
-export async function excluirDespesa(id: number): Promise<void> {
+export async function deleteExpenses(id: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
     method: "DELETE",
   });
