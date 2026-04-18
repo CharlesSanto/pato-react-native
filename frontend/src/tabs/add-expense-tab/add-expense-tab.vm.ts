@@ -1,114 +1,99 @@
-/**
- * ViewModel da aba de adição de despesas (AddExpenseTab).
- * Gerencia a lógica de validação e submissão do formulário.
- */
+import { Dispatch, SetStateAction } from "react";
+import { ExpenseCategory, ExpenseModel } from "../../models/expense.model";
+import { createExpense } from "../../services/expenses.service";
+import { mockExpenses } from "src/mock/ExpenseMock";
 
-import { Dispatch, SetStateAction } from 'react';
-import {
-  ExpenseCategory,
-  ExpenseModel,
-} from '../../models/expense.model';
-import { criarDespesa } from '../../services/expenses.service';
-
-/** Setter genérico de estado React */
 type SetState<T> = Dispatch<SetStateAction<T>>;
-
-/**
- * ViewModel responsável pela lógica do formulário de adição de despesa.
- */
 export class AddExpenseTabViewModel {
   /**
    * Atualiza o campo de descrição no estado do formulário.
-   * @param texto - Novo valor digitado
-   * @param setDescricao - Setter do estado de descrição
+   * @param text - Novo valor digitado
+   * @param setDescription - Setter do estado de descrição
    */
-  public handleDescricaoChange = (
-    texto: string,
-    setDescricao: SetState<string>
+  public handleDescriptionChange = (
+    text: string,
+    setDescription: SetState<string>,
   ): void => {
-    setDescricao(texto);
+    setDescription(text);
   };
 
   /**
    * Atualiza o campo de valor no estado do formulário.
    * Aceita apenas caracteres numéricos e separadores decimais.
-   * @param texto - Novo valor digitado
-   * @param setValor - Setter do estado de valor
+   * @param text - Novo valor digitado
+   * @param setValue - Setter do estado de valor
    */
-  public handleValorChange = (
-    texto: string,
-    setValor: SetState<string>
+  public handleValueChange = (
+    text: string,
+    setValue: SetState<string>,
   ): void => {
     // Permite apenas dígitos, vírgula e ponto
-    const sanitizado = texto.replace(/[^0-9.,]/g, '');
-    setValor(sanitizado);
+    const sanitizado = text.replace(/[^0-9.,]/g, "");
+    setValue(sanitizado);
   };
 
   /**
    * Atualiza o campo de data no estado do formulário.
-   * @param texto - Nova data digitada
-   * @param setData - Setter do estado de data
+   * @param text - Nova data digitada
+   * @param setDate - Setter do estado de data
    */
-  public handleDataChange = (
-    texto: string,
-    setData: SetState<string>
-  ): void => {
-    setData(texto);
+  public handleDateChange = (text: string, setDate: SetState<string>): void => {
+    setDate(text);
   };
 
   /**
    * Atualiza a categoria selecionada no formulário.
-   * @param categoria - Categoria escolhida
-   * @param setCategoria - Setter do estado de categoria
+   * @param category - Categoria escolhida
+   * @param setCategory - Setter do estado de categoria
    */
-  public handleCategoriaChange = (
-    categoria: ExpenseCategory,
-    setCategoria: SetState<ExpenseCategory>
+  public handleCategoryChange = (
+    category: ExpenseCategory,
+    setCategory: SetState<ExpenseCategory>,
   ): void => {
-    setCategoria(categoria);
+    setCategory(category);
   };
 
   /**
    * Atualiza o campo de observações no formulário.
-   * @param texto - Novo texto digitado
-   * @param setObservacoes - Setter do estado de observações
+   * @param text - Novo texto digitado
+   * @param setObservations - Setter do estado de observações
    */
-  public handleObservacoesChange = (
-    texto: string,
-    setObservacoes: SetState<string>
+  public handleObservationsChange = (
+    text: string,
+    setObservations: SetState<string>,
   ): void => {
-    setObservacoes(texto);
+    setObservations(text);
   };
 
   /**
    * Valida os campos do formulário e retorna lista de erros.
-   * @param descricao - Descrição da despesa
-   * @param valor - Valor como string
-   * @param data - Data como string
+   * @param description - Descrição da despesa
+   * @param value - Valor como string
+   * @param date - Data como string
    * @returns Array de mensagens de erro (vazio se válido)
    */
-  public validarFormulario = (
-    descricao: string,
-    valor: string,
-    data: string
+  public validateForm = (
+    description: string,
+    value: string,
+    date: string,
   ): string[] => {
     const erros: string[] = [];
 
-    if (!descricao.trim()) {
-      erros.push('A descrição é obrigatória.');
+    if (!description.trim()) {
+      erros.push("A descrição é obrigatória.");
     }
 
-    const valorNum = parseFloat(valor.replace(',', '.'));
-    if (!valor.trim() || isNaN(valorNum) || valorNum <= 0) {
-      erros.push('Informe um valor válido e maior que zero.');
+    const valueNum = parseFloat(value.replace(",", "."));
+    if (!value.trim() || isNaN(valueNum) || valueNum <= 0) {
+      erros.push("Informe um valor válido e maior que zero.");
     }
 
-    if (!data.trim()) {
-      erros.push('A data é obrigatória.');
+    if (!date.trim()) {
+      erros.push("A data é obrigatória.");
     } else {
       const regexData = /^\d{4}-\d{2}-\d{2}$/;
-      if (!regexData.test(data)) {
-        erros.push('A data deve estar no formato AAAA-MM-DD.');
+      if (!regexData.test(date)) {
+        erros.push("A data deve estar no formato AAAA-MM-DD.");
       }
     }
 
@@ -117,54 +102,71 @@ export class AddExpenseTabViewModel {
 
   /**
    * Salva a nova despesa no backend.
-   * @param descricao - Descrição da despesa
-   * @param valor - Valor como string
+   * @param description - Descrição da despesa
+   * @param value - Valor como string
    * @param data - Data no formato YYYY-MM-DD
-   * @param categoria - Categoria selecionada
-   * @param observacoes - Observações opcionais
-   * @param setSalvando - Setter do estado de loading
-   * @param setErros - Setter da lista de erros
-   * @param setSucesso - Setter do estado de sucesso
-   * @param onSucesso - Callback opcional chamado após salvar com sucesso
+   * @param category - Categoria selecionada
+   * @param observations - Observações opcionais
+   * @param setSaving - Setter do estado de loading
+   * @param setErrors - Setter da lista de erros
+   * @param setSuccess - Setter do estado de sucesso
+   * @param onSuccess - Callback opcional chamado após salvar com sucesso
    */
-  public handleSalvarDespesaAsync = async (
-    descricao: string,
-    valor: string,
-    data: string,
-    categoria: ExpenseCategory,
-    observacoes: string,
-    setSalvando: SetState<boolean>,
-    setErros: SetState<string[]>,
-    setSucesso: SetState<boolean>,
-    onSucesso?: (despesa: ExpenseModel) => void
+  public handleSaveExpenseAsync = async (
+    description: string,
+    value: string,
+    date: string,
+    category: ExpenseCategory,
+    observations: string,
+    setSaving: SetState<boolean>,
+    setErrors: SetState<string[]>,
+    setSuccess: SetState<boolean>,
+    onSuccess?: (despesa: ExpenseModel) => void,
   ): Promise<void> => {
-    const erros = this.validarFormulario(descricao, valor, data);
+    const erros = this.validateForm(description, value, date);
     if (erros.length > 0) {
-      setErros(erros);
+      setErrors(erros);
       return;
     }
 
-    setSalvando(true);
-    setErros([]);
+    setSaving(true);
+    setErrors([]);
 
     try {
-      const valorNum = parseFloat(valor.replace(',', '.'));
-      const despesaCriada = await criarDespesa({
-        descricao: descricao.trim(),
-        valor: valorNum,
-        data,
-        categoria,
-        observacoes: observacoes.trim() || undefined,
+      const valueNum = parseFloat(value.replace(",", "."));
+
+      const createdExpense = await createExpense({
+        description: description.trim(),
+        value: valueNum,
+        date,
+        category,
+        observations: observations.trim() || undefined,
       });
 
-      setSucesso(true);
-      onSucesso?.(despesaCriada);
-    } catch (erro) {
+      // MOCK
+      const newExpense: ExpenseModel = {
+        id: mockExpenses.length
+          ? Math.max(...mockExpenses.map((e) => e.id)) + 1
+          : 1,
+        description: description.trim(),
+        value: valueNum,
+        date,
+        category,
+        observations: observations.trim() || undefined,
+      };
+
+      mockExpenses.push(newExpense);
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setSuccess(true);
+      onSuccess?.(newExpense);
+    } catch (error) {
       const mensagem =
-        erro instanceof Error ? erro.message : 'Erro ao salvar despesa.';
-      setErros([mensagem]);
+        error instanceof Error ? error.message : "Erro ao salvar despesa.";
+      setErrors([mensagem]);
     } finally {
-      setSalvando(false);
+      setSaving(false);
     }
   };
 
@@ -172,12 +174,12 @@ export class AddExpenseTabViewModel {
    * Retorna a data atual no formato YYYY-MM-DD.
    * @returns Data atual formatada
    */
-  public obterDataAtual = (): string => {
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-    const dia = String(hoje.getDate()).padStart(2, '0');
-    return `${ano}-${mes}-${dia}`;
+  public getCurrentDate = (): string => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 }
 

@@ -1,95 +1,86 @@
-/**
- * ViewModel do componente ExpenseFilter.
- * Contém a lógica de manipulação dos filtros de despesas.
- */
+import { Dispatch, SetStateAction } from "react";
+import {
+  ExpenseCategory,
+  ExpenseFilterModel,
+} from "../../models/expense.model";
 
-import { Dispatch, SetStateAction } from 'react';
-import { ExpenseCategory, ExpenseFilterModel } from '../../models/expense.model';
+type SetFilterFn = Dispatch<SetStateAction<ExpenseFilterModel>>;
 
-/** Tipo do setter do estado de filtro */
-type SetFiltroFn = Dispatch<SetStateAction<ExpenseFilterModel>>;
-
-/**
- * ViewModel responsável por gerenciar as interações do componente de filtro.
- */
 export class ExpenseFilterViewModel {
   /**
    * Atualiza a categoria selecionada no filtro.
-   * @param categoria - Nova categoria ou undefined para "Todas"
-   * @param setFiltro - Setter do estado de filtro
+   * @param category - Nova categoria ou undefined para "Todas"
+   * @param setFilter - Setter do estado de filtro
    */
-  public handleCategoriaChange = (
-    categoria: ExpenseCategory | undefined,
-    setFiltro: SetFiltroFn
+  public handleCategoryChange = (
+    category: ExpenseCategory | undefined,
+    setFilter: SetFilterFn,
   ): void => {
-    setFiltro((prev) => ({ ...prev, categoria }));
+    setFilter((prev) => ({ ...prev, category }));
   };
 
   /**
    * Atualiza a data de início no filtro.
-   * @param data - Data de início no formato YYYY-MM-DD
-   * @param setFiltro - Setter do estado de filtro
+   * @param date - Data de início no formato YYYY-MM-DD
+   * @param setFilter - Setter do estado de filtro
    */
-  public handleDataInicioChange = (
-    data: string,
-    setFiltro: SetFiltroFn
+  public handleStartDateChange = (
+    date: string,
+    setFilter: SetFilterFn,
   ): void => {
-    setFiltro((prev) => ({ ...prev, dataInicio: data || undefined }));
+    setFilter((prev) => ({ ...prev, dataInicio: date || undefined }));
   };
 
   /**
    * Atualiza a data de fim no filtro.
-   * @param data - Data de fim no formato YYYY-MM-DD
-   * @param setFiltro - Setter do estado de filtro
+   * @param date - Data de fim no formato YYYY-MM-DD
+   * @param setFilter - Setter do estado de filtro
    */
-  public handleDataFimChange = (
-    data: string,
-    setFiltro: SetFiltroFn
-  ): void => {
-    setFiltro((prev) => ({ ...prev, dataFim: data || undefined }));
+  public handleEndDateChange = (date: string, setFilter: SetFilterFn): void => {
+    setFilter((prev) => ({ ...prev, dataFim: date || undefined }));
   };
 
   /**
    * Atualiza o valor mínimo no filtro.
-   * @param valor - Valor mínimo como string (entrada do usuário)
-   * @param setFiltro - Setter do estado de filtro
+   * @param value - Valor mínimo como string (entrada do usuário)
+   * @param setFilter - Setter do estado de filtro
    */
-  public handleValorMinimoChange = (
-    valor: string,
-    setFiltro: SetFiltroFn
+  public handleMinValueChange = (
+    value: string,
+    setFilter: SetFilterFn,
   ): void => {
-    const num = parseFloat(valor.replace(',', '.'));
-    setFiltro((prev) => ({
+    const num = parseFloat(value.replace(",", "."));
+    setFilter((prev) => ({
       ...prev,
-      valorMinimo: valor === '' ? undefined : isNaN(num) ? undefined : num,
+      valorMinimo: value === "" ? undefined : isNaN(num) ? undefined : num,
     }));
   };
 
   /**
    * Atualiza o valor máximo no filtro.
    * @param valor - Valor máximo como string (entrada do usuário)
-   * @param setFiltro - Setter do estado de filtro
+   * @param setFilter - Setter do estado de filtro
    */
-  public handleValorMaximoChange = (
+  public handleMaxValueChange = (
     valor: string,
-    setFiltro: SetFiltroFn
+    setFilter: SetFilterFn,
   ): void => {
-    const num = parseFloat(valor.replace(',', '.'));
-    setFiltro((prev) => ({
+    const num = parseFloat(valor.replace(",", "."));
+    setFilter((prev) => ({
       ...prev,
-      valorMaximo: valor === '' ? undefined : isNaN(num) ? undefined : num,
+      maxValue: valor === "" ? undefined : isNaN(num) ? undefined : num,
     }));
   };
 
   /**
    * Limpa todos os filtros aplicados, retornando ao estado inicial.
-   * @param setFiltro - Setter do estado de filtro
+   * @param setFilter - Setter do estado de filtro
    * @returns Filtro limpo aplicado
    */
-  public handleLimparFiltros = (setFiltro: SetFiltroFn): ExpenseFilterModel => {
-    const filtroLimpo: ExpenseFilterModel = {};
-    setFiltro(filtroLimpo);
-    return filtroLimpo;
+  public handleCleanFilters = (setFilter: SetFilterFn): ExpenseFilterModel => {
+    const cleanFilter: ExpenseFilterModel = {};
+    setFilter(cleanFilter);
+    return cleanFilter;
   };
 }
 
