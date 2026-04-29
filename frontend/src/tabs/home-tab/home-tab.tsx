@@ -1,140 +1,116 @@
-/**
- * Aba principal do aplicativo Pato.
- * Exibe a listagem de despesas com suporte a filtros e exclusão.
- */
-
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import ExpenseFilter from '../../components/expense-filter/expense-filter';
-import ExpenseItem from '../../components/expense-item/expense-item';
-import {
-  ExpenseFilterModel,
-  ExpenseModel,
-} from '../../models/expense.model';
-import styles from './home-tab.style';
-import { homeTabViewModel } from './home-tab.vm';
+} from "react-native";
+import ExpenseFilter from "../../components/expense-filter/expense-filter";
+import ExpenseItem from "../../components/expense-item/expense-item";
+import { ExpenseFilterModel, ExpenseModel } from "../../models/expense.model";
+import styles from "./home-tab.style";
+import { homeTabViewModel } from "./home-tab.vm";
 
-/**
- * Componente da aba inicial que lista e gerencia as despesas do usuário.
- */
 const HomeTab: React.FC = () => {
-  const [despesas, setDespesas] = useState<ExpenseModel[]>([]);
-  const [carregando, setCarregando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const [filtro, setFiltro] = useState<ExpenseFilterModel>({});
-  const [filtrosVisiveis, setFiltrosVisiveis] = useState(false);
+  const [expenses, setExpenses] = useState<ExpenseModel[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<ExpenseFilterModel>({});
+  const [visibleFilters, setVisibleFilters] = useState(false);
 
-  /** Carrega as despesas ao montar o componente */
   useEffect(() => {
-    homeTabViewModel.handleCarregarDespesasAsync(
-      setDespesas,
-      setCarregando,
-      setErro,
-      filtro
+    homeTabViewModel.handleLoadExpensesAsync(
+      setExpenses,
+      setLoading,
+      setError,
+      filter,
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /** Callback de exclusão de despesa */
-  const handleExcluir = useCallback(
+  const handleDelete = useCallback(
     (id: number) => {
-      homeTabViewModel.handleExcluirDespesaAsync(
+      homeTabViewModel.handleDeleteExpenseAsync(
         id,
-        setDespesas,
-        setCarregando,
-        setErro,
-        filtro
+        setExpenses,
+        setLoading,
+        setError,
+        filter,
       );
     },
-    [filtro]
+    [filter],
   );
 
-  /** Callback de press em item (placeholder para navegação futura) */
   const handlePressItem = useCallback((_expense: ExpenseModel) => {
     // Reservado para navegação de detalhes
   }, []);
 
-  /** Callback de alteração de filtros */
-  const handleFiltroChange = useCallback(
-    (novoFiltro: ExpenseFilterModel) => {
-      homeTabViewModel.handleAplicarFiltrosAsync(
-        novoFiltro,
-        setFiltro,
-        setDespesas,
-        setCarregando,
-        setErro
-      );
-    },
-    []
-  );
+  const handleFilterChange = useCallback((newFilter: ExpenseFilterModel) => {
+    homeTabViewModel.handleApplyFiltersAsync(
+      newFilter,
+      setFilter,
+      setExpenses,
+      setLoading,
+      setError,
+    );
+  }, []);
 
-  const total = homeTabViewModel.calcularTotalDespesas(despesas);
+  const total = homeTabViewModel.sumExpenses(expenses);
 
   return (
     <View style={styles.container}>
-      {/* Cabeçalho */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Minhas Despesas</Text>
         <TouchableOpacity
           style={styles.filterToggleButton}
           onPress={() =>
-            homeTabViewModel.handleToggleFiltros(setFiltrosVisiveis)
+            homeTabViewModel.handleToggleFilters(setVisibleFilters)
           }
         >
           <Text style={styles.filterToggleButtonText}>
-            {filtrosVisiveis ? '▲ Ocultar Filtros' : '▼ Filtros'}
+            {visibleFilters ? "▲ Ocultar Filtros" : "▼ Filtros"}
           </Text>
         </TouchableOpacity>
 
-        {/* Card de total */}
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>Total do período</Text>
           <Text style={styles.totalValue}>
-            {homeTabViewModel.formatarValorMonetario(total)}
+            {homeTabViewModel.formatCurrency(total)}
           </Text>
         </View>
       </View>
 
-      {/* Painel de filtros (colapsável) */}
-      {filtrosVisiveis && (
-        <ExpenseFilter filtro={filtro} onFiltroChange={handleFiltroChange} />
+      {visibleFilters && (
+        <ExpenseFilter filter={filter} onFilterChange={handleFilterChange} />
       )}
 
-      {/* Mensagem de erro */}
-      {erro !== null && <Text style={styles.errorText}>{erro}</Text>}
+      {error !== null && <Text style={styles.errorText}>{error}</Text>}
 
-      {/* Estado de carregamento */}
-      {carregando ? (
+      {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2980B9" />
         </View>
       ) : (
         <FlatList
           style={styles.listContainer}
-          data={despesas}
+          data={expenses}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <ExpenseItem
               expense={item}
               onPress={handlePressItem}
-              onDelete={handleExcluir}
+              onDelete={handleDelete}
             />
           )}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                Nenhuma despesa encontrada.{'\n'}Adicione sua primeira despesa!
+                Nenhuma despesa encontrada.{"\n"}Adicione sua primeira despesa!
               </Text>
             </View>
           }
           contentContainerStyle={
-            despesas.length === 0 ? { flex: 1 } : undefined
+            expenses.length === 0 ? { flex: 1 } : undefined
           }
         />
       )}

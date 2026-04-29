@@ -1,9 +1,4 @@
-/**
- * Aba de adição de despesas do aplicativo Pato.
- * Formulário completo para registro de uma nova despesa.
- */
-
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -11,69 +6,61 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import {
-  CATEGORY_LABELS,
-  ExpenseCategory,
-} from '../../models/expense.model';
-import styles from './add-expense-tab.style';
-import { addExpenseTabViewModel } from './add-expense-tab.vm';
+} from "react-native";
+import { CATEGORY_LABELS, ExpenseCategory } from "../../models/expense.model";
+import styles from "./add-expense-tab.style";
+import { addExpenseTabViewModel } from "./add-expense-tab.vm";
 
-/**
- * Componente da aba de adição de despesas.
- * Permite ao usuário preencher e submeter uma nova despesa.
- */
 const AddExpenseTab: React.FC = () => {
-  const [descricao, setDescricao] = useState('');
-  const [valor, setValor] = useState('');
-  const [data, setData] = useState(addExpenseTabViewModel.obterDataAtual());
-  const [categoria, setCategoria] = useState<ExpenseCategory>(
-    ExpenseCategory.OUTROS
+  const [description, setDescription] = useState("");
+  const [value, setValue] = useState("");
+  const [date, setDate] = useState(addExpenseTabViewModel.getCurrentDate());
+  const [category, setCategory] = useState<ExpenseCategory>(
+    ExpenseCategory.OTHERS,
   );
-  const [observacoes, setObservacoes] = useState('');
-  const [erros, setErros] = useState<string[]>([]);
-  const [salvando, setSalvando] = useState(false);
-  const [sucesso, setSucesso] = useState(false);
+  const [observations, setObservations] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const sucessoTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const successTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
-  /** Limpa o timer de sucesso ao desmontar o componente */
   React.useEffect(() => {
     return () => {
-      if (sucessoTimerRef.current !== null) {
-        clearTimeout(sucessoTimerRef.current);
+      if (successTimerRef.current !== null) {
+        clearTimeout(successTimerRef.current);
       }
     };
   }, []);
 
   const todasCategorias = Object.values(ExpenseCategory);
 
-  /** Reseta o formulário para o estado inicial após salvar */
   const resetarFormulario = (): void => {
-    setDescricao('');
-    setValor('');
-    setData(addExpenseTabViewModel.obterDataAtual());
-    setCategoria(ExpenseCategory.OUTROS);
-    setObservacoes('');
-    setErros([]);
-    if (sucessoTimerRef.current !== null) {
-      clearTimeout(sucessoTimerRef.current);
+    setDescription("");
+    setValue("");
+    setDate(addExpenseTabViewModel.getCurrentDate());
+    setCategory(ExpenseCategory.OTHERS);
+    setObservations("");
+    setErrors([]);
+    if (successTimerRef.current !== null) {
+      clearTimeout(successTimerRef.current);
     }
-    sucessoTimerRef.current = setTimeout(() => setSucesso(false), 3000);
+    successTimerRef.current = setTimeout(() => setSuccess(false), 3000);
   };
 
-  /** Submete o formulário */
   const handleSubmit = (): void => {
-    addExpenseTabViewModel.handleSalvarDespesaAsync(
-      descricao,
-      valor,
-      data,
-      categoria,
-      observacoes,
-      setSalvando,
-      setErros,
-      setSucesso,
-      () => resetarFormulario()
+    addExpenseTabViewModel.handleSaveExpenseAsync(
+      description,
+      value,
+      date,
+      category,
+      observations,
+      setSaving,
+      setErrors,
+      setSuccess,
+      () => resetarFormulario(),
     );
   };
 
@@ -85,8 +72,7 @@ const AddExpenseTab: React.FC = () => {
     >
       <Text style={styles.titulo}>Adicionar Despesa</Text>
 
-      {/* Mensagem de sucesso */}
-      {sucesso && (
+      {success && (
         <View style={styles.successMessage}>
           <Text style={styles.successMessageText}>
             ✓ Despesa adicionada com sucesso!
@@ -94,62 +80,63 @@ const AddExpenseTab: React.FC = () => {
         </View>
       )}
 
-      {/* Erros de validação */}
-      {erros.map((erro, index) => (
+      {errors.map((erro, index) => (
         <Text key={index} style={styles.errorText}>
           • {erro}
         </Text>
       ))}
 
-      {/* Campo: Descrição */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>Descrição *</Text>
         <TextInput
           style={[
             styles.input,
-            erros.length > 0 && !descricao.trim() && styles.inputError,
+            errors.length > 0 && !description.trim() && styles.inputError,
           ]}
           placeholder="Ex.: Almoço no restaurante"
           placeholderTextColor="#95A5A6"
-          value={descricao}
+          value={description}
           onChangeText={(texto) =>
-            addExpenseTabViewModel.handleDescricaoChange(texto, setDescricao)
+            addExpenseTabViewModel.handleDescriptionChange(
+              texto,
+              setDescription,
+            )
           }
           maxLength={100}
         />
       </View>
 
-      {/* Campo: Valor */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>Valor (R$) *</Text>
         <TextInput
-          style={[styles.input, erros.length > 0 && !valor && styles.inputError]}
+          style={[
+            styles.input,
+            errors.length > 0 && !value && styles.inputError,
+          ]}
           placeholder="0,00"
           placeholderTextColor="#95A5A6"
           keyboardType="decimal-pad"
-          value={valor}
+          value={value}
           onChangeText={(texto) =>
-            addExpenseTabViewModel.handleValorChange(texto, setValor)
+            addExpenseTabViewModel.handleValueChange(texto, setValue)
           }
         />
       </View>
 
-      {/* Campo: Data */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>Data *</Text>
         <TextInput
           style={styles.input}
           placeholder="AAAA-MM-DD"
           placeholderTextColor="#95A5A6"
-          value={data}
+          value={date}
           onChangeText={(texto) =>
-            addExpenseTabViewModel.handleDataChange(texto, setData)
+            addExpenseTabViewModel.handleDateChange(texto, setDate)
           }
           maxLength={10}
         />
       </View>
 
-      {/* Campo: Categoria */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>Categoria *</Text>
         <View style={styles.categoryContainer}>
@@ -158,16 +145,16 @@ const AddExpenseTab: React.FC = () => {
               key={cat}
               style={[
                 styles.categoryOption,
-                categoria === cat && styles.categoryOptionSelected,
+                category === cat && styles.categoryOptionSelected,
               ]}
               onPress={() =>
-                addExpenseTabViewModel.handleCategoriaChange(cat, setCategoria)
+                addExpenseTabViewModel.handleCategoryChange(cat, setCategory)
               }
             >
               <Text
                 style={[
                   styles.categoryOptionText,
-                  categoria === cat && styles.categoryOptionSelectedText,
+                  category === cat && styles.categoryOptionSelectedText,
                 ]}
               >
                 {CATEGORY_LABELS[cat]}
@@ -177,7 +164,6 @@ const AddExpenseTab: React.FC = () => {
         </View>
       </View>
 
-      {/* Campo: Observações */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>Observações (opcional)</Text>
         <TextInput
@@ -186,20 +172,22 @@ const AddExpenseTab: React.FC = () => {
           placeholderTextColor="#95A5A6"
           multiline
           numberOfLines={3}
-          value={observacoes}
+          value={observations}
           onChangeText={(texto) =>
-            addExpenseTabViewModel.handleObservacoesChange(texto, setObservacoes)
+            addExpenseTabViewModel.handleObservationsChange(
+              texto,
+              setObservations,
+            )
           }
         />
       </View>
 
-      {/* Botão de submissão */}
       <TouchableOpacity
-        style={[styles.submitButton, salvando && styles.submitButtonDisabled]}
+        style={[styles.submitButton, saving && styles.submitButtonDisabled]}
         onPress={handleSubmit}
-        disabled={salvando}
+        disabled={saving}
       >
-        {salvando ? (
+        {saving ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
           <Text style={styles.submitButtonText}>Adicionar Despesa</Text>

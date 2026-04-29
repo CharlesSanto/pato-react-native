@@ -1,46 +1,37 @@
-/**
- * Componente ExpenseItem.
- * Renderiza um único item de despesa em formato de card na lista.
- */
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { CATEGORY_LABELS, ExpenseModel } from "../../models/expense.model";
+import styles from "./expense-item.style";
 
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { CATEGORY_LABELS, ExpenseModel } from '../../models/expense.model';
-import styles from './expense-item.style';
-
-/** Props do componente ExpenseItem */
 interface ExpenseItemProps {
-  /** Despesa a ser exibida */
   expense: ExpenseModel;
-  /** Callback disparado ao pressionar o item */
   onPress: (expense: ExpenseModel) => void;
-  /** Callback disparado ao solicitar exclusão do item */
   onDelete: (id: number) => void;
 }
 
 /**
  * Formata um valor numérico no padrão monetário brasileiro (R$ X,XX).
- * @param valor - Valor a ser formatado
+ * @param value - Valor a ser formatado
  * @returns String formatada
  */
-function formatarValor(valor: number): string {
-  return valor.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
+function formatarValor(value: number): string {
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
   });
 }
 
 /**
  * Formata uma data no formato YYYY-MM-DD para DD/MM/YYYY.
- * @param data - Data no formato ISO
+ * @param date - Data no formato ISO
  * @returns Data formatada em português
  */
-function formatarData(data: string): string {
-  const partes = data.split('-');
+function formatarData(date: string): string {
+  const partes = date.split("-");
   if (partes.length === 3) {
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   }
-  return data;
+  return date;
 }
 
 /**
@@ -58,17 +49,15 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({
       activeOpacity={0.85}
     >
       <View style={styles.header}>
-        <Text style={styles.descricao} numberOfLines={2}>
-          {expense.descricao}
+        <Text style={styles.description} numberOfLines={2}>
+          {expense.description}
         </Text>
-        <Text style={styles.valor}>{formatarValor(expense.valor)}</Text>
+        <Text style={styles.value}>{formatarValor(expense.value)}</Text>
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.categoria}>
-          {CATEGORY_LABELS[expense.categoria]}
-        </Text>
-        <Text style={styles.data}>{formatarData(expense.data)}</Text>
+        <Text style={styles.category}>{CATEGORY_LABELS[expense.category]}</Text>
+        <Text style={styles.date}>{formatarData(expense.date)}</Text>
       </View>
 
       <TouchableOpacity
