@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import { ExpenseCategory, ExpenseModel } from "../../models/expense.model";
 import { createExpense } from "../../services/expenses.service";
 import { mockExpenses } from "src/mock/ExpenseMock";
+import type { DateType } from "react-native-ui-datepicker";
 
 type SetState<T> = Dispatch<SetStateAction<T>>;
 export class AddExpenseTabViewModel {
@@ -37,7 +38,7 @@ export class AddExpenseTabViewModel {
    * @param text - Nova data digitada
    * @param setDate - Setter do estado de data
    */
-  public handleDateChange = (text: string, setDate: SetState<string>): void => {
+  public handleDateChange = (text: DateType, setDate: SetState<DateType>): void => {
     setDate(text);
   };
 
@@ -75,7 +76,7 @@ export class AddExpenseTabViewModel {
   public validateForm = (
     description: string,
     value: string,
-    date: string,
+    date: DateType,
   ): string[] => {
     const erros: string[] = [];
 
@@ -88,13 +89,8 @@ export class AddExpenseTabViewModel {
       erros.push("Informe um valor válido e maior que zero.");
     }
 
-    if (!date.trim()) {
+    if (!date) {
       erros.push("A data é obrigatória.");
-    } else {
-      const regexData = /^\d{4}-\d{2}-\d{2}$/;
-      if (!regexData.test(date)) {
-        erros.push("A data deve estar no formato AAAA-MM-DD.");
-      }
     }
 
     return erros;
@@ -115,7 +111,7 @@ export class AddExpenseTabViewModel {
   public handleSaveExpenseAsync = async (
     description: string,
     value: string,
-    date: string,
+    date: DateType,
     category: ExpenseCategory,
     observations: string,
     setSaving: SetState<boolean>,

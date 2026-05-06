@@ -11,11 +11,12 @@ import { CATEGORY_LABELS, ExpenseCategory } from "../../models/expense.model";
 import styles from "./add-expense-tab.style";
 import { addExpenseTabViewModel } from "./add-expense-tab.vm";
 import { Toast } from "toastify-react-native";
+import DateTimePicker, { DateType } from "react-native-ui-datepicker";
 
 const AddExpenseTab: React.FC = () => {
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
-  const [date, setDate] = useState(addExpenseTabViewModel.getCurrentDate());
+  const [date, setDate] = useState<DateType>(addExpenseTabViewModel.getCurrentDate());
   const [category, setCategory] = useState<ExpenseCategory>(
     ExpenseCategory.OTHERS,
   );
@@ -136,15 +137,11 @@ const AddExpenseTab: React.FC = () => {
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Data *</Text>
-        <TextInput
+        <DateTimePicker 
+          mode="single"
+          date={date}
+          onChange={(date) => addExpenseTabViewModel.handleDateChange(date.date, setDate)}
           style={styles.input}
-          placeholder="AAAA-MM-DD"
-          placeholderTextColor="#95A5A6"
-          value={date}
-          onChangeText={(texto) =>
-            addExpenseTabViewModel.handleDateChange(texto, setDate)
-          }
-          maxLength={10}
         />
       </View>
 

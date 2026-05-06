@@ -1,3 +1,5 @@
+import type { DateType } from "react-native-ui-datepicker";
+
 // change the identifier to english
 export enum ExpenseCategory {
   FOOD = "ALIMENTACAO",
@@ -25,7 +27,7 @@ export interface ExpenseModel {
   id: number;
   description: string;
   value: number;
-  date: string;
+  date: DateType;
   category: ExpenseCategory;
   observations?: string;
 }
@@ -33,7 +35,7 @@ export interface ExpenseModel {
 export interface CreateExpenseModel {
   description: string;
   value: number;
-  date: string;
+  date: DateType;
   category: ExpenseCategory;
   observations?: string;
 }
