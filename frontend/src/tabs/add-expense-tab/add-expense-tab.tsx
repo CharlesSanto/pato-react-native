@@ -12,6 +12,7 @@ import styles from "./add-expense-tab.style";
 import { addExpenseTabViewModel } from "./add-expense-tab.vm";
 import { Toast } from "toastify-react-native";
 import DateTimePicker, { DateType } from "react-native-ui-datepicker";
+import { formatCurrency } from "src/utils/CurrencyUtils";
 
 const AddExpenseTab: React.FC = () => {
   const [description, setDescription] = useState("");
@@ -127,11 +128,12 @@ const AddExpenseTab: React.FC = () => {
           ]}
           placeholder="0,00"
           placeholderTextColor="#95A5A6"
-          keyboardType="decimal-pad"
+          keyboardType="numeric"
           value={value}
-          onChangeText={(texto) =>
-            addExpenseTabViewModel.handleValueChange(texto, setValue)
-          }
+          onChangeText={(texto) => {
+            const formatted = formatCurrency(texto);
+            setValue(formatted);
+          }}
         />
       </View>
 
