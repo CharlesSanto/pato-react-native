@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -10,6 +10,7 @@ import {
 import { CATEGORY_LABELS, ExpenseCategory } from "../../models/expense.model";
 import styles from "./add-expense-tab.style";
 import { addExpenseTabViewModel } from "./add-expense-tab.vm";
+import { Toast } from "toastify-react-native";
 
 const AddExpenseTab: React.FC = () => {
   const [description, setDescription] = useState("");
@@ -37,7 +38,7 @@ const AddExpenseTab: React.FC = () => {
 
   const todasCategorias = Object.values(ExpenseCategory);
 
-  const resetarFormulario = (): void => {
+  const resetForm = (): void => {
     setDescription("");
     setValue("");
     setDate(addExpenseTabViewModel.getCurrentDate());
@@ -60,9 +61,33 @@ const AddExpenseTab: React.FC = () => {
       setSaving,
       setErrors,
       setSuccess,
-      () => resetarFormulario(),
+      () => resetForm(),
     );
   };
+
+  useEffect(() => {
+    if (success) {
+      Toast.show({
+        type: "success",
+        text1: "Sucesso",
+        text2: "Despesa adicionada com sucesso!",
+      });
+
+      resetForm();
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (success) {
+      Toast.show({
+        type: "success",
+        text1: "Erro",
+        text2: errors.join(', '),
+      });
+
+      resetForm();
+    }
+  }, [errors]);
 
   return (
     <ScrollView
@@ -71,20 +96,6 @@ const AddExpenseTab: React.FC = () => {
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       <Text style={styles.titulo}>Adicionar Despesa</Text>
-
-      {success && (
-        <View style={styles.successMessage}>
-          <Text style={styles.successMessageText}>
-            ✓ Despesa adicionada com sucesso!
-          </Text>
-        </View>
-      )}
-
-      {errors.map((erro, index) => (
-        <Text key={index} style={styles.errorText}>
-          • {erro}
-        </Text>
-      ))}
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Descrição *</Text>
