@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Button,
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -11,13 +13,14 @@ import { CATEGORY_LABELS, ExpenseCategory } from "../../models/expense.model";
 import styles from "./add-expense-tab.style";
 import { addExpenseTabViewModel } from "./add-expense-tab.vm";
 import { Toast } from "toastify-react-native";
-import DateTimePicker, { DateType } from "react-native-ui-datepicker";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { formatCurrency } from "src/utils/CurrencyUtils";
 
 const AddExpenseTab: React.FC = () => {
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
-  const [date, setDate] = useState<DateType>(addExpenseTabViewModel.getCurrentDate());
+  const [date, setDate] = useState(addExpenseTabViewModel.getCurrentDate());
+  const [showPicker, setShowPicker] = useState(false);
   const [category, setCategory] = useState<ExpenseCategory>(
     ExpenseCategory.OTHERS,
   );
@@ -80,14 +83,12 @@ const AddExpenseTab: React.FC = () => {
   }, [success]);
 
   useEffect(() => {
-    if (success) {
+    if (errors.length > 0) {
       Toast.show({
-        type: "success",
+        type: "error",
         text1: "Erro",
-        text2: errors.join(', '),
+        text2: errors.join(", "),
       });
-
-      resetForm();
     }
   }, [errors]);
 
@@ -139,12 +140,31 @@ const AddExpenseTab: React.FC = () => {
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Data *</Text>
-        <DateTimePicker 
-          mode="single"
-          date={date}
-          onChange={(date) => addExpenseTabViewModel.handleDateChange(date.date, setDate)}
-          style={styles.input}
-        />
+
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={() => setShowPicker(true)}
+        >
+          <Text style={{ color: "#fff" }}>
+            Clique para alterar a data: {date.toLocaleDateString("pt-BR")}
+          </Text>
+        </TouchableOpacity>
+
+        {showPicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            locale="pt-BR"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(event, selectedDate) => {
+              setShowPicker(false);
+
+              if (selectedDate) {
+                setDate(selectedDate);
+              }
+            }}
+          />
+        )}
       </View>
 
       <View style={styles.formGroup}>

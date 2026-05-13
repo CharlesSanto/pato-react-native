@@ -153,12 +153,8 @@ export class AddExpenseTabViewModel {
    * Retorna a data atual no formato YYYY-MM-DD.
    * @returns Data atual formatada
    */
-  public getCurrentDate = (): string => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+  public getCurrentDate = (): Date => {
+    return new Date()
   };
 }
 
