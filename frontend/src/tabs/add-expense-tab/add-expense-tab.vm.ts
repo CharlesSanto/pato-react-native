@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { ExpenseCategory, ExpenseModel } from "../../models/expense.model";
 import { createExpense } from "../../services/expenses.service";
-import { mockExpenses } from "src/mock/ExpenseMock";
 import type { DateType } from "react-native-ui-datepicker";
 
 type SetState<T> = Dispatch<SetStateAction<T>>;
@@ -139,24 +138,8 @@ export class AddExpenseTabViewModel {
         observations: observations.trim() || undefined,
       });
 
-      // MOCK
-      const newExpense: ExpenseModel = {
-        id: mockExpenses.length
-          ? Math.max(...mockExpenses.map((e) => e.id)) + 1
-          : 1,
-        description: description.trim(),
-        value: valueNum,
-        date,
-        category,
-        observations: observations.trim() || undefined,
-      };
-
-      mockExpenses.push(newExpense);
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       setSuccess(true);
-      onSuccess?.(newExpense);
+      onSuccess?.(createdExpense);
     } catch (error) {
       const mensagem =
         error instanceof Error ? error.message : "Erro ao salvar despesa.";
