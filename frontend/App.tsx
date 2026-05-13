@@ -6,6 +6,7 @@ import React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AddExpenseTab from "./src/tabs/add-expense-tab/add-expense-tab";
 import HomeTab from "./src/tabs/home-tab/home-tab";
+import ToastManager from "toastify-react-native";
 
 type RootTabParamList = {
   Despesas: undefined;
@@ -58,6 +59,8 @@ export default function App(): React.JSX.Element {
             options={{ title: "Adicionar" }}
           />
         </Tab.Navigator>
+
+        <ToastManager / >
       </NavigationContainer>
     </SafeAreaProvider>
   );
