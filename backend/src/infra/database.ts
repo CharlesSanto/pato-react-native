@@ -1,15 +1,8 @@
-/**
- * @file database.ts
- * @description Módulo de conexão e inicialização do banco de dados SQLite para o aplicativo Pato.
- */
-
 import Database from "better-sqlite3";
 import path from "path";
 
-/** Caminho absoluto para o arquivo do banco de dados SQLite */
 const CAMINHO_BANCO = path.resolve(process.cwd(), "pato.db");
 
-/** Instância singleton da conexão com o banco de dados */
 let instanciaDb: Database.Database | null = null;
 
 /**
