@@ -7,7 +7,6 @@ export const mockExpenses: ExpenseModel[] = [
     value: 150.75,
     date: "2026-04-10",
     category: ExpenseCategory.FOOD,
-    observations: "Weekly groceries",
   },
   {
     id: 2,
@@ -22,7 +21,6 @@ export const mockExpenses: ExpenseModel[] = [
     value: 89.9,
     date: "2026-04-12",
     category: ExpenseCategory.HEALTH,
-    observations: "Medicine purchase",
   },
   {
     id: 4,
@@ -72,7 +70,6 @@ export const mockExpenses: ExpenseModel[] = [
     value: 120,
     date: "2026-04-14",
     category: ExpenseCategory.FOOD,
-    observations: "Dinner with friends",
   },
   {
     id: 11,

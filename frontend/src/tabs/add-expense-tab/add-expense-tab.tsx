@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Button,
   Platform,
   ScrollView,
   Text,
@@ -24,7 +23,6 @@ const AddExpenseTab: React.FC = () => {
   const [category, setCategory] = useState<ExpenseCategory>(
     ExpenseCategory.OTHERS,
   );
-  const [observations, setObservations] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -48,7 +46,6 @@ const AddExpenseTab: React.FC = () => {
     setValue("");
     setDate(addExpenseTabViewModel.getCurrentDate());
     setCategory(ExpenseCategory.OTHERS);
-    setObservations("");
     setErrors([]);
     if (successTimerRef.current !== null) {
       clearTimeout(successTimerRef.current);
@@ -62,7 +59,6 @@ const AddExpenseTab: React.FC = () => {
       value,
       date,
       category,
-      observations,
       setSaving,
       setErrors,
       setSuccess,
@@ -192,24 +188,6 @@ const AddExpenseTab: React.FC = () => {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Observações (opcional)</Text>
-        <TextInput
-          style={styles.textArea}
-          placeholder="Informações adicionais sobre a despesa..."
-          placeholderTextColor="#95A5A6"
-          multiline
-          numberOfLines={3}
-          value={observations}
-          onChangeText={(texto) =>
-            addExpenseTabViewModel.handleObservationsChange(
-              texto,
-              setObservations,
-            )
-          }
-        />
       </View>
 
       <TouchableOpacity

@@ -54,18 +54,6 @@ export class AddExpenseTabViewModel {
   };
 
   /**
-   * Atualiza o campo de observações no formulário.
-   * @param text - Novo texto digitado
-   * @param setObservations - Setter do estado de observações
-   */
-  public handleObservationsChange = (
-    text: string,
-    setObservations: SetState<string>,
-  ): void => {
-    setObservations(text);
-  };
-
-  /**
    * Valida os campos do formulário e retorna lista de erros.
    * @param description - Descrição da despesa
    * @param value - Valor como string
@@ -101,7 +89,6 @@ export class AddExpenseTabViewModel {
    * @param value - Valor como string
    * @param data - Data no formato YYYY-MM-DD
    * @param category - Categoria selecionada
-   * @param observations - Observações opcionais
    * @param setSaving - Setter do estado de loading
    * @param setErrors - Setter da lista de erros
    * @param setSuccess - Setter do estado de sucesso
@@ -112,7 +99,6 @@ export class AddExpenseTabViewModel {
     value: string,
     date: DateType,
     category: ExpenseCategory,
-    observations: string,
     setSaving: SetState<boolean>,
     setErrors: SetState<string[]>,
     setSuccess: SetState<boolean>,
@@ -134,8 +120,7 @@ export class AddExpenseTabViewModel {
         description: description.trim(),
         value: valueNum,
         date,
-        category,
-        observations: observations.trim() || undefined,
+        category
       });
 
       setSuccess(true);
