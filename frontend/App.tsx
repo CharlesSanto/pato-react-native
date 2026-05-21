@@ -7,9 +7,11 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import AddExpenseTab from "./src/tabs/add-expense-tab/add-expense-tab";
 import HomeTab from "./src/tabs/home-tab/home-tab";
 import ToastManager from "toastify-react-native";
+import StatisticsTab from "@tabs/statistics-tab/statistics-tab";
 
 type RootTabParamList = {
   Despesas: undefined;
+  "Estatísticas": undefined;
   Adicionar: undefined;
 };
 
@@ -37,13 +39,15 @@ export default function App(): React.JSX.Element {
             },
             tabBarIcon: ({ focused, color, size }) => {
               let iconName: React.ComponentProps<typeof Ionicons>["name"];
-
+            
               if (route.name === "Despesas") {
                 iconName = focused ? "list" : "list-outline";
+              } else if (route.name === "Estatísticas") {
+                iconName = focused ? "pie-chart" : "pie-chart-outline";
               } else {
                 iconName = focused ? "add-circle" : "add-circle-outline";
               }
-
+            
               return <Ionicons name={iconName} size={size} color={color} />;
             },
           })}
@@ -52,6 +56,11 @@ export default function App(): React.JSX.Element {
             name="Despesas"
             component={HomeTab}
             options={{ title: "Despesas" }}
+          />
+          <Tab.Screen 
+            name="Estatísticas"
+            component={StatisticsTab}
+            options={{ title: "Estatísticas" }}
           />
           <Tab.Screen
             name="Adicionar"
