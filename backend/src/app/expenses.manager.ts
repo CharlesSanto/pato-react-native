@@ -55,21 +55,21 @@ export class ExpensesService {
     }
   }
 
-  async createExpenseAsync(
-    data: CreateExpenseModel
-  ) {
+  async createExpenseAsync(data: CreateExpenseModel) {
     try {
-      const despesa =
-        await repository.create(data);
-
+      const expense = await repository.create(data);
+  
       return {
         success: true,
-        data: despesa,
+        data: expense,
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error);
+      console.error(error.cause);
+  
       return {
         success: false,
-        error: (error as Error).message,
+        error: error.cause?.message || error.message,
       };
     }
   }

@@ -3,6 +3,15 @@ services:
     build: .
     ports:
       - "3000:3000"
+    
+    env_file:
+      - .env
+
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASS}@postgres:5432/${DB_NAME}
 
     volumes:
       - .:/app
@@ -10,9 +19,7 @@ services:
 
     depends_on:
       - postgres
-
-    environment:
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASS}@postgres:5432/${DB_NAME}
+      
 
   postgres:
     image: postgres:17

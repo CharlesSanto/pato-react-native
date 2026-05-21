@@ -60,42 +60,6 @@ expensesRouter.get(
       maxValue,
     } = req.query;
 
-    if (
-      minValue !== undefined &&
-      parseOptionalNumber(minValue) === undefined
-    ) {
-      res.status(400).json({
-        success: false,
-        error: "Invalid minValue parameter.",
-      });
-
-      return;
-    }
-
-    if (
-      maxValue !== undefined &&
-      parseOptionalNumber(maxValue) === undefined
-    ) {
-      res.status(400).json({
-        success: false,
-        error: "Invalid maxValue parameter.",
-      });
-
-      return;
-    }
-
-    if (
-      category !== undefined &&
-      !isValidCategory(category)
-    ) {
-      res.status(400).json({
-        success: false,
-        error: "Invalid category parameter.",
-      });
-
-      return;
-    }
-
     const filter: ExpenseFilterModel = {};
 
     if (typeof startDate === "string") {
@@ -224,7 +188,6 @@ expensesRouter.post(
         value: numericValue,
         date,
         category,
-        observations,
       });
 
     if (!result.success) {
@@ -299,7 +262,6 @@ expensesRouter.put(
         value: numericValue,
         date,
         category,
-        observations,
       });
 
     if (!result.success) {

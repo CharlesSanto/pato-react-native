@@ -13,7 +13,7 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use("/api/despesas", expensesRouter);
+app.use("/api/expenses", expensesRouter);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(

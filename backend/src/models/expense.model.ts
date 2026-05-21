@@ -15,7 +15,6 @@ export interface ExpenseModel {
   value: number;
   date: string;
   category: ExpenseCategory;
-  observations?: string;
 }
 
 export interface CreateExpenseModel {
@@ -23,7 +22,6 @@ export interface CreateExpenseModel {
   value: number;
   date: string;
   category: ExpenseCategory;
-  observations?: string;
 }
 
 export interface UpdateExpenseModel {
@@ -31,7 +29,6 @@ export interface UpdateExpenseModel {
   value?: number;
   date?: string;
   category?: ExpenseCategory;
-  observations?: string;
 }
 
 export interface ExpenseFilterModel {
