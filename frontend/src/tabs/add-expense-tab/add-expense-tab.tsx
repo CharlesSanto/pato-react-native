@@ -85,6 +85,8 @@ const AddExpenseTab: React.FC = () => {
         text1: "Erro",
         text2: errors.join(", "),
       });
+
+      setSaving(false)
     }
   }, [errors]);
 
