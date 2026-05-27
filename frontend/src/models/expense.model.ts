@@ -29,7 +29,6 @@ export interface ExpenseModel {
   value: number;
   date: DateType;
   category: ExpenseCategory;
-  observations?: string;
 }
 
 export interface CreateExpenseModel {
