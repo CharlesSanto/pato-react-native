@@ -5,7 +5,6 @@ import { PieChart } from "react-native-chart-kit";
 import { styles } from "./statistics-tab.style";
 import { useStatisticsTabVM } from "./statistics-tab.vm";
 
-
 const StatisticsTab: React.FC = () => {
   const { total, categoryChartData } = useStatisticsTabVM();
 
@@ -19,7 +18,7 @@ const StatisticsTab: React.FC = () => {
     color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
     strokeWidth: 2,
     barPercentage: 0.5,
-    useShadowColorFromDataset: false
+    useShadowColorFromDataset: false,
   };
 
   return (
@@ -27,9 +26,7 @@ const StatisticsTab: React.FC = () => {
       <Text style={styles.title}>Estatísticas</Text>
 
       <View style={styles.card}>
-        <Text style={styles.totalText}>
-          Total gasto: R$ {total.toFixed(2)}
-        </Text>
+        <Text style={styles.totalText}>Total gasto: R$ {total.toFixed(2)}</Text>
       </View>
 
       <View style={styles.card}>
@@ -40,7 +37,7 @@ const StatisticsTab: React.FC = () => {
             data={categoryChartData}
             width={screenWidth - 32}
             height={220}
-            accessor={"name"}
+            accessor={"value"}
             chartConfig={chartConfig}
             backgroundColor="transparent"
             paddingLeft="10"
@@ -50,6 +47,6 @@ const StatisticsTab: React.FC = () => {
       </View>
     </View>
   );
-}
+};
 
-export default StatisticsTab
+export default StatisticsTab;
