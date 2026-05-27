@@ -1,8 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { ExpenseFilterModel, ExpenseModel } from "../../models/expense.model";
-
-// import { deleteExpenses, listExpenses } from "../../services/expenses.service";
-import { mockExpenses } from "src/mock/ExpenseMock";
+import { deleteExpenses, listExpenses } from "@services/expenses.service";
 
 type SetState<T> = Dispatch<SetStateAction<T>>;
 
@@ -24,39 +22,37 @@ export class HomeTabViewModel {
     setError(null);
 
     try {
-      // const despesas = await listExpenses(filter);
-
-      let despesas = [...mockExpenses];
+      let expenses = await listExpenses(filter);
 
       if (filter) {
         if (filter.startDate) {
-          despesas = despesas.filter(
+          expenses = expenses.filter(
             (e) => new Date(e.date) >= new Date(filter.startDate!),
           );
         }
 
         if (filter.endDate) {
-          despesas = despesas.filter(
+          expenses = expenses.filter(
             (e) => new Date(e.date) <= new Date(filter.endDate!),
           );
         }
 
         if (filter.category) {
-          despesas = despesas.filter((e) => e.category === filter.category);
+          expenses = expenses.filter((e) => e.category === filter.category);
         }
 
         if (filter.minValue !== undefined) {
-          despesas = despesas.filter((e) => e.value >= filter.minValue!);
+          expenses = expenses.filter((e) => e.value >= filter.minValue!);
         }
 
         if (filter.maxValue !== undefined) {
-          despesas = despesas.filter((e) => e.value <= filter.maxValue!);
+          expenses = expenses.filter((e) => e.value <= filter.maxValue!);
         }
       }
 
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      setExpenses(despesas);
+      setExpenses(expenses);
     } catch (error) {
       const mensagem =
         error instanceof Error ? error.message : "Erro ao carregar despesas.";
@@ -83,12 +79,7 @@ export class HomeTabViewModel {
     currentFilter?: ExpenseFilterModel,
   ): Promise<void> => {
     try {
-      // await deleteExpenses(id);
-
-      const index = mockExpenses.findIndex((e) => e.id === id);
-      if (index !== -1) {
-        mockExpenses.splice(index, 1);
-      }
+      await deleteExpenses(id);
 
       await this.handleLoadExpensesAsync(
         setExpenses,
