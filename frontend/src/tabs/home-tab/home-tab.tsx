@@ -73,6 +73,18 @@ const HomeTab: React.FC = () => {
       setLoading(false)
     }, [error]);
 
+  useEffect(() => {
+      if (error && error.length > 0) {
+        Toast.show({
+          type: "error",
+          text1: "Erro",
+          text2: error,
+        });
+      }
+
+      setLoading(false)
+    }, [error]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
