@@ -1,30 +1,33 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { listExpenses } from "@services/expenses.service";
 import { ExpenseCategory, ExpenseModel } from "../../models/expense.model";
 import { formatCurrency } from "src/utils/CurrencyUtils";
+import { useFocusEffect } from "@react-navigation/native";
 
 export function useStatisticsTabVM() {
   const [expenses, setExpenses] = useState<ExpenseModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchExpenses() {
-      try {
-        setLoading(true);
+  useFocusEffect(
+    useCallback(() => {
+      async function fetchExpenses() {
+        try {
+          setLoading(true);
 
-        const data = await listExpenses();
+          const data = await listExpenses();
 
-        setExpenses(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
+          setExpenses(data);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Unknown error");
+        } finally {
+          setLoading(false);
+        }
       }
-    }
 
-    fetchExpenses();
-  }, []);
+      fetchExpenses();
+    }, [])
+  );
 
   const total = useMemo(() => {
     return expenses.reduce((sum, e) => sum + e.value, 0);

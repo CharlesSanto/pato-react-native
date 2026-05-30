@@ -15,16 +15,16 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
-        "foregroundImage": "./src/assets/images/pato-logo.png",
-        "backgroundImage": "./src/assets/images/pato-logo.png",
-        "monochromeImage": "./src/assets/images/pato-logo.png"
+        "foregroundImage": "./src/assets/pato-logo.png",
+        "backgroundImage": "./src/assets/pato-logo.png",
+        "monochromeImage": "./src/assets/pato-logo.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
-      "favicon": "./src/assets/images/pato-logo.png"
+      "output": "single",
+      "favicon": "./src/assets/pato-logo.png"
     },
     "plugins": [
       "@react-native-community/datetimepicker"

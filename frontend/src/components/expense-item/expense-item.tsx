@@ -27,11 +27,9 @@ function formatarValor(value: number): string {
  * @returns Data formatada em português
  */
 function formatarData(date: string): string {
-  const partes = date.split("-");
-  if (partes.length === 3) {
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-  }
-  return date;
+  const data = new Date(date);
+
+  return data.toLocaleDateString("pt-BR");
 }
 
 /**
