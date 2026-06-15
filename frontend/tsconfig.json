@@ -4,6 +4,7 @@
     "jsx": "react",
     "strict": true,
     "baseUrl": ".",
+    "types": ["node"],
     "paths": {
       "@models/*": [
         "src/models/*"

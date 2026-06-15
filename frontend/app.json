@@ -5,17 +5,29 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./src/assets/pato-logo.png",
     "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "img": "./src/assets/pato-logo.png"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff"
-      }
-    }
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./src/assets/pato-logo.png",
+        "backgroundImage": "./src/assets/pato-logo.png",
+        "monochromeImage": "./src/assets/pato-logo.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./src/assets/pato-logo.png"
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker"
+    ]
   }
 }

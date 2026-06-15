@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { ExpenseCategory, ExpenseModel } from "../../models/expense.model";
 import { createExpense } from "../../services/expenses.service";
-import { mockExpenses } from "src/mock/ExpenseMock";
+import type { DateType } from "react-native-ui-datepicker";
 
 type SetState<T> = Dispatch<SetStateAction<T>>;
 export class AddExpenseTabViewModel {
@@ -37,7 +37,7 @@ export class AddExpenseTabViewModel {
    * @param text - Nova data digitada
    * @param setDate - Setter do estado de data
    */
-  public handleDateChange = (text: string, setDate: SetState<string>): void => {
+  public handleDateChange = (text: DateType, setDate: SetState<DateType>): void => {
     setDate(text);
   };
 
@@ -54,18 +54,6 @@ export class AddExpenseTabViewModel {
   };
 
   /**
-   * Atualiza o campo de observações no formulário.
-   * @param text - Novo texto digitado
-   * @param setObservations - Setter do estado de observações
-   */
-  public handleObservationsChange = (
-    text: string,
-    setObservations: SetState<string>,
-  ): void => {
-    setObservations(text);
-  };
-
-  /**
    * Valida os campos do formulário e retorna lista de erros.
    * @param description - Descrição da despesa
    * @param value - Valor como string
@@ -75,7 +63,7 @@ export class AddExpenseTabViewModel {
   public validateForm = (
     description: string,
     value: string,
-    date: string,
+    date: DateType,
   ): string[] => {
     const erros: string[] = [];
 
@@ -88,13 +76,8 @@ export class AddExpenseTabViewModel {
       erros.push("Informe um valor válido e maior que zero.");
     }
 
-    if (!date.trim()) {
+    if (!date) {
       erros.push("A data é obrigatória.");
-    } else {
-      const regexData = /^\d{4}-\d{2}-\d{2}$/;
-      if (!regexData.test(date)) {
-        erros.push("A data deve estar no formato AAAA-MM-DD.");
-      }
     }
 
     return erros;
@@ -106,7 +89,6 @@ export class AddExpenseTabViewModel {
    * @param value - Valor como string
    * @param data - Data no formato YYYY-MM-DD
    * @param category - Categoria selecionada
-   * @param observations - Observações opcionais
    * @param setSaving - Setter do estado de loading
    * @param setErrors - Setter da lista de erros
    * @param setSuccess - Setter do estado de sucesso
@@ -115,9 +97,8 @@ export class AddExpenseTabViewModel {
   public handleSaveExpenseAsync = async (
     description: string,
     value: string,
-    date: string,
+    date: DateType,
     category: ExpenseCategory,
-    observations: string,
     setSaving: SetState<boolean>,
     setErrors: SetState<string[]>,
     setSuccess: SetState<boolean>,
@@ -139,28 +120,11 @@ export class AddExpenseTabViewModel {
         description: description.trim(),
         value: valueNum,
         date,
-        category,
-        observations: observations.trim() || undefined,
+        category
       });
 
-      // MOCK
-      const newExpense: ExpenseModel = {
-        id: mockExpenses.length
-          ? Math.max(...mockExpenses.map((e) => e.id)) + 1
-          : 1,
-        description: description.trim(),
-        value: valueNum,
-        date,
-        category,
-        observations: observations.trim() || undefined,
-      };
-
-      mockExpenses.push(newExpense);
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       setSuccess(true);
-      onSuccess?.(newExpense);
+      onSuccess?.(createdExpense);
     } catch (error) {
       const mensagem =
         error instanceof Error ? error.message : "Erro ao salvar despesa.";
@@ -174,12 +138,8 @@ export class AddExpenseTabViewModel {
    * Retorna a data atual no formato YYYY-MM-DD.
    * @returns Data atual formatada
    */
-  public getCurrentDate = (): string => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+  public getCurrentDate = (): Date => {
+    return new Date()
   };
 }
 

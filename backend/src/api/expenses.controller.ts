@@ -1,217 +1,314 @@
-/**
- * @file expenses.controller.ts
- * @description Controlador Express com as rotas REST para o recurso de despesas.
- */
-
 import { Router, Request, Response } from "express";
+
 import {
-  listarDespesasAsync,
-  obterDespesaPorIdAsync,
-  criarDespesaAsync,
-  atualizarDespesaAsync,
-  excluirDespesaAsync,
+  ExpensesService
 } from "../app/expenses.manager";
-import { ErrorCode, ExpenseCategory, ExpenseFilterModel } from "../models/expense.model";
 
-/** Roteador Express para o recurso de despesas */
-export const despesasRouter = Router();
+import {
+  ErrorCode,
+  ExpenseCategory,
+  ExpenseFilterModel,
+} from "../models/expense.model";
 
-/**
- * Retorna o status HTTP adequado com base no código de erro do resultado.
- * @param {ErrorCode | undefined} codigoErro - Código de erro estruturado
- * @returns {number} Código de status HTTP correspondente
- */
-const httpStatusParaErro = (codigoErro: ErrorCode | undefined): number => {
-  if (codigoErro === ErrorCode.NAO_ENCONTRADO) return 404;
+export const expensesRouter = Router();
+
+const service = new ExpensesService()
+
+const getHttpStatusByError = (
+  errorCode?: ErrorCode
+): number => {
+  if (errorCode === ErrorCode.NOT_FOUND) {
+    return 404;
+  }
+
   return 500;
 };
 
-/**
- * Converte uma string para número, retornando undefined se inválida.
- * @param {string | undefined} valor - Valor a converter
- * @returns {number | undefined} Número convertido ou undefined se inválido
- */
-const parseNumeroOpcional = (valor: unknown): number | undefined => {
-  if (typeof valor !== "string") return undefined;
-  const n = Number(valor);
-  return isNaN(n) ? undefined : n;
+const parseOptionalNumber = (
+  value: unknown
+): number | undefined => {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+
+  return isNaN(parsed)
+    ? undefined
+    : parsed;
 };
 
-/**
- * Verifica se uma categoria é válida conforme o enum ExpenseCategory.
- * @param {unknown} categoria - Valor a validar
- * @returns {boolean} true se a categoria for válida
- */
-const isCategoriaValida = (categoria: unknown): categoria is ExpenseCategory => {
+const isValidCategory = (
+  category: unknown
+): category is ExpenseCategory => {
   return (
-    typeof categoria === "string" &&
-    Object.values(ExpenseCategory).includes(categoria as ExpenseCategory)
+    typeof category === "string" &&
+    Object.values(ExpenseCategory).includes(
+      category as ExpenseCategory
+    )
   );
 };
 
-/**
- * GET /despesas
- * Lista todas as despesas, com suporte a filtros via query string.
- * Parâmetros opcionais: dataInicio, dataFim, categoria, valorMinimo, valorMaximo
- */
-despesasRouter.get("/", async (req: Request, res: Response) => {
-  const { dataInicio, dataFim, categoria, valorMinimo, valorMaximo } =
-    req.query;
+expensesRouter.get(
+  "/",
+  async (req: Request, res: Response) => {
+    const {
+      startDate,
+      endDate,
+      category,
+      minValue,
+      maxValue,
+    } = req.query;
 
-  if (valorMinimo !== undefined && parseNumeroOpcional(valorMinimo) === undefined) {
-    res.status(400).json({ sucesso: false, erro: "Parâmetro valorMinimo inválido." });
-    return;
-  }
-  if (valorMaximo !== undefined && parseNumeroOpcional(valorMaximo) === undefined) {
-    res.status(400).json({ sucesso: false, erro: "Parâmetro valorMaximo inválido." });
-    return;
-  }
-  if (categoria !== undefined && !isCategoriaValida(categoria)) {
-    res.status(400).json({ sucesso: false, erro: "Parâmetro categoria inválido." });
-    return;
-  }
+    const filter: ExpenseFilterModel = {};
 
-  const filtro: ExpenseFilterModel = {};
-  if (typeof dataInicio === "string") filtro.dataInicio = dataInicio;
-  if (typeof dataFim === "string") filtro.dataFim = dataFim;
-  if (typeof categoria === "string") filtro.categoria = categoria as ExpenseCategory;
-  if (typeof valorMinimo === "string") filtro.valorMinimo = Number(valorMinimo);
-  if (typeof valorMaximo === "string") filtro.valorMaximo = Number(valorMaximo);
+    if (typeof startDate === "string") {
+      filter.startDate = startDate;
+    }
 
-  const resultado = await listarDespesasAsync(filtro);
+    if (typeof endDate === "string") {
+      filter.endDate = endDate;
+    }
 
-  if (!resultado.sucesso) {
-    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
-    return;
-  }
+    if (typeof category === "string") {
+      filter.category =
+        category as ExpenseCategory;
+    }
 
-  res.status(200).json(resultado);
-});
+    if (typeof minValue === "string") {
+      filter.minValue = Number(minValue);
+    }
 
-/**
- * GET /despesas/:id
- * Retorna uma despesa específica pelo seu identificador.
- */
-despesasRouter.get("/:id", async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+    if (typeof maxValue === "string") {
+      filter.maxValue = Number(maxValue);
+    }
 
-  if (isNaN(id)) {
-    res.status(400).json({ sucesso: false, erro: "Id inválido." });
-    return;
-  }
+    const result =
+      await service.listExpensesAsync(filter);
 
-  const resultado = await obterDespesaPorIdAsync(id);
+    if (!result.success) {
+      res
+        .status(
+          getHttpStatusByError(
+            result.errorCode
+          )
+        )
+        .json(result);
 
-  if (!resultado.sucesso) {
-    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
-    return;
-  }
-
-  res.status(200).json(resultado);
-});
-
-/**
- * POST /despesas
- * Cria uma nova despesa com os dados enviados no corpo da requisição.
- */
-despesasRouter.post("/", async (req: Request, res: Response) => {
-  const { descricao, valor, data, categoria, observacoes } = req.body;
-
-  if (!descricao || valor === undefined || !data || !categoria) {
-    res.status(400).json({
-      sucesso: false,
-      erro: "Campos obrigatórios ausentes: descricao, valor, data, categoria.",
-    });
-    return;
-  }
-
-  const valorNumerico = Number(valor);
-  if (isNaN(valorNumerico)) {
-    res.status(400).json({ sucesso: false, erro: "Campo valor deve ser numérico." });
-    return;
-  }
-  if (!isCategoriaValida(categoria)) {
-    res.status(400).json({ sucesso: false, erro: "Campo categoria inválido." });
-    return;
-  }
-
-  const resultado = await criarDespesaAsync({
-    descricao,
-    valor: valorNumerico,
-    data,
-    categoria,
-    observacoes,
-  });
-
-  if (!resultado.sucesso) {
-    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
-    return;
-  }
-
-  res.status(201).json(resultado);
-});
-
-/**
- * PUT /despesas/:id
- * Atualiza uma despesa existente pelo seu identificador.
- */
-despesasRouter.put("/:id", async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-
-  if (isNaN(id)) {
-    res.status(400).json({ sucesso: false, erro: "Id inválido." });
-    return;
-  }
-
-  const { descricao, valor, data, categoria, observacoes } = req.body;
-
-  let valorNumerico: number | undefined;
-  if (valor !== undefined) {
-    valorNumerico = Number(valor);
-    if (isNaN(valorNumerico)) {
-      res.status(400).json({ sucesso: false, erro: "Campo valor deve ser numérico." });
       return;
     }
+
+    res.status(200).json(result);
   }
-  if (categoria !== undefined && !isCategoriaValida(categoria)) {
-    res.status(400).json({ sucesso: false, erro: "Campo categoria inválido." });
-    return;
+);
+
+expensesRouter.get(
+  "/:id",
+  async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      res.status(400).json({
+        success: false,
+        error: "Invalid id.",
+      });
+
+      return;
+    }
+
+    const result =
+      await service.getExpenseByIdAsync(id);
+
+    if (!result.success) {
+      res
+        .status(
+          getHttpStatusByError(
+            result.errorCode
+          )
+        )
+        .json(result);
+
+      return;
+    }
+
+    res.status(200).json(result);
   }
+);
 
-  const resultado = await atualizarDespesaAsync(id, {
-    descricao,
-    valor: valorNumerico,
-    data,
-    categoria,
-    observacoes,
-  });
+expensesRouter.post(
+  "/",
+  async (req: Request, res: Response) => {
+    const {
+      description,
+      value,
+      date,
+      category,
+      observations,
+    } = req.body;
 
-  if (!resultado.sucesso) {
-    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
-    return;
+    if (
+      !description ||
+      value === undefined ||
+      !date ||
+      !category
+    ) {
+      res.status(400).json({
+        success: false,
+        error:
+          "Missing required fields: description, value, date, category.",
+      });
+
+      return;
+    }
+
+    const numericValue = Number(value);
+
+    if (isNaN(numericValue)) {
+      res.status(400).json({
+        success: false,
+        error:
+          "Value field must be numeric.",
+      });
+
+      return;
+    }
+
+    if (!isValidCategory(category)) {
+      res.status(400).json({
+        success: false,
+        error: "Invalid category.",
+      });
+
+      return;
+    }
+
+    const result =
+      await service.createExpenseAsync({
+        description,
+        value: numericValue,
+        date,
+        category,
+      });
+
+    if (!result.success) {
+      res
+        .status(
+          400
+        )
+        .json(result);
+
+      return;
+    }
+
+    res.status(201).json(result);
   }
+);
 
-  res.status(200).json(resultado);
-});
+expensesRouter.put(
+  "/:id",
+  async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
 
-/**
- * DELETE /despesas/:id
- * Remove uma despesa pelo seu identificador.
- */
-despesasRouter.delete("/:id", async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({
+        success: false,
+        error: "Invalid id.",
+      });
 
-  if (isNaN(id)) {
-    res.status(400).json({ sucesso: false, erro: "Id inválido." });
-    return;
+      return;
+    }
+
+    const {
+      description,
+      value,
+      date,
+      category,
+      observations,
+    } = req.body;
+
+    let numericValue:
+      | number
+      | undefined;
+
+    if (value !== undefined) {
+      numericValue = Number(value);
+
+      if (isNaN(numericValue)) {
+        res.status(400).json({
+          success: false,
+          error:
+            "Value field must be numeric.",
+        });
+
+        return;
+      }
+    }
+
+    if (
+      category !== undefined &&
+      !isValidCategory(category)
+    ) {
+      res.status(400).json({
+        success: false,
+        error: "Invalid category.",
+      });
+
+      return;
+    }
+
+    const result =
+      await service.updateExpenseAsync(id, {
+        description,
+        value: numericValue,
+        date,
+        category,
+      });
+
+    if (!result.success) {
+      res
+        .status(
+          getHttpStatusByError(
+            result.errorCode
+          )
+        )
+        .json(result);
+
+      return;
+    }
+
+    res.status(200).json(result);
   }
+);
 
-  const resultado = await excluirDespesaAsync(id);
+expensesRouter.delete(
+  "/:id",
+  async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
 
-  if (!resultado.sucesso) {
-    res.status(httpStatusParaErro(resultado.codigoErro)).json(resultado);
-    return;
+    if (isNaN(id)) {
+      res.status(400).json({
+        success: false,
+        error: "Invalid id.",
+      });
+
+      return;
+    }
+
+    const result =
+      await service.deleteExpenseAsync(id);
+
+    if (!result.success) {
+      res
+        .status(
+          getHttpStatusByError(
+            result.errorCode
+          )
+        )
+        .json(result);
+
+      return;
+    }
+
+    res.status(200).json(result);
   }
-
-  res.status(200).json(resultado);
-});
+);

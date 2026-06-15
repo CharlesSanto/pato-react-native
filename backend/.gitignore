@@ -3,3 +3,4 @@ dist/
 pato.db
 pato.db-shm
 pato.db-wal
+.env

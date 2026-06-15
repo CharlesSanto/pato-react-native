@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -10,15 +11,18 @@ import {
 import { CATEGORY_LABELS, ExpenseCategory } from "../../models/expense.model";
 import styles from "./add-expense-tab.style";
 import { addExpenseTabViewModel } from "./add-expense-tab.vm";
+import { Toast } from "toastify-react-native";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { formatCurrency } from "src/utils/CurrencyUtils";
 
 const AddExpenseTab: React.FC = () => {
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
   const [date, setDate] = useState(addExpenseTabViewModel.getCurrentDate());
+  const [showPicker, setShowPicker] = useState(false);
   const [category, setCategory] = useState<ExpenseCategory>(
     ExpenseCategory.OTHERS,
   );
-  const [observations, setObservations] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -37,12 +41,11 @@ const AddExpenseTab: React.FC = () => {
 
   const todasCategorias = Object.values(ExpenseCategory);
 
-  const resetarFormulario = (): void => {
+  const resetForm = (): void => {
     setDescription("");
     setValue("");
     setDate(addExpenseTabViewModel.getCurrentDate());
     setCategory(ExpenseCategory.OTHERS);
-    setObservations("");
     setErrors([]);
     if (successTimerRef.current !== null) {
       clearTimeout(successTimerRef.current);
@@ -56,13 +59,36 @@ const AddExpenseTab: React.FC = () => {
       value,
       date,
       category,
-      observations,
       setSaving,
       setErrors,
       setSuccess,
-      () => resetarFormulario(),
+      () => resetForm(),
     );
   };
+
+  useEffect(() => {
+    if (success) {
+      Toast.show({
+        type: "success",
+        text1: "Sucesso",
+        text2: "Despesa adicionada com sucesso!",
+      });
+
+      resetForm();
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (errors.length > 0) {
+      Toast.show({
+        type: "error",
+        text1: "Erro",
+        text2: errors.join(", "),
+      });
+
+      setSaving(false)
+    }
+  }, [errors]);
 
   return (
     <ScrollView
@@ -71,20 +97,6 @@ const AddExpenseTab: React.FC = () => {
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       <Text style={styles.titulo}>Adicionar Despesa</Text>
-
-      {success && (
-        <View style={styles.successMessage}>
-          <Text style={styles.successMessageText}>
-            ✓ Despesa adicionada com sucesso!
-          </Text>
-        </View>
-      )}
-
-      {errors.map((erro, index) => (
-        <Text key={index} style={styles.errorText}>
-          • {erro}
-        </Text>
-      ))}
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Descrição *</Text>
@@ -115,26 +127,42 @@ const AddExpenseTab: React.FC = () => {
           ]}
           placeholder="0,00"
           placeholderTextColor="#95A5A6"
-          keyboardType="decimal-pad"
+          keyboardType="numeric"
           value={value}
-          onChangeText={(texto) =>
-            addExpenseTabViewModel.handleValueChange(texto, setValue)
-          }
+          onChangeText={(texto) => {
+            const formatted = formatCurrency(texto);
+            setValue(formatted);
+          }}
         />
       </View>
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Data *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="AAAA-MM-DD"
-          placeholderTextColor="#95A5A6"
-          value={date}
-          onChangeText={(texto) =>
-            addExpenseTabViewModel.handleDateChange(texto, setDate)
-          }
-          maxLength={10}
-        />
+
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={() => setShowPicker(true)}
+        >
+          <Text style={{ color: "#fff" }}>
+            Clique para alterar a data: {date.toLocaleDateString("pt-BR")}
+          </Text>
+        </TouchableOpacity>
+
+        {showPicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            locale="pt-BR"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(event, selectedDate) => {
+              setShowPicker(false);
+
+              if (selectedDate) {
+                setDate(selectedDate);
+              }
+            }}
+          />
+        )}
       </View>
 
       <View style={styles.formGroup}>
@@ -162,24 +190,6 @@ const AddExpenseTab: React.FC = () => {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Observações (opcional)</Text>
-        <TextInput
-          style={styles.textArea}
-          placeholder="Informações adicionais sobre a despesa..."
-          placeholderTextColor="#95A5A6"
-          multiline
-          numberOfLines={3}
-          value={observations}
-          onChangeText={(texto) =>
-            addExpenseTabViewModel.handleObservationsChange(
-              texto,
-              setObservations,
-            )
-          }
-        />
       </View>
 
       <TouchableOpacity

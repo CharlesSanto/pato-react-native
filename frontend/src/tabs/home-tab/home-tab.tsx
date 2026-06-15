@@ -11,6 +11,8 @@ import ExpenseItem from "../../components/expense-item/expense-item";
 import { ExpenseFilterModel, ExpenseModel } from "../../models/expense.model";
 import styles from "./home-tab.style";
 import { homeTabViewModel } from "./home-tab.vm";
+import { Toast } from "toastify-react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 const HomeTab: React.FC = () => {
   const [expenses, setExpenses] = useState<ExpenseModel[]>([]);
@@ -19,14 +21,16 @@ const HomeTab: React.FC = () => {
   const [filter, setFilter] = useState<ExpenseFilterModel>({});
   const [visibleFilters, setVisibleFilters] = useState(false);
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     homeTabViewModel.handleLoadExpensesAsync(
       setExpenses,
       setLoading,
       setError,
       filter,
     );
-  }, []);
+  }, [filter])
+);
 
   const handleDelete = useCallback(
     (id: number) => {
@@ -57,6 +61,30 @@ const HomeTab: React.FC = () => {
 
   const total = homeTabViewModel.sumExpenses(expenses);
 
+  useEffect(() => {
+      if (error && error.length > 0) {
+        Toast.show({
+          type: "error",
+          text1: "Erro",
+          text2: error,
+        });
+      }
+
+      setLoading(false)
+    }, [error]);
+
+  useEffect(() => {
+      if (error && error.length > 0) {
+        Toast.show({
+          type: "error",
+          text1: "Erro",
+          text2: error,
+        });
+      }
+
+      setLoading(false)
+    }, [error]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -83,8 +111,6 @@ const HomeTab: React.FC = () => {
       {visibleFilters && (
         <ExpenseFilter filter={filter} onFilterChange={handleFilterChange} />
       )}
-
-      {error !== null && <Text style={styles.errorText}>{error}</Text>}
 
       {loading ? (
         <View style={styles.loadingContainer}>
